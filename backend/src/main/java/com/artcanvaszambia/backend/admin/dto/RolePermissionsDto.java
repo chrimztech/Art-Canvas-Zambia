@@ -1,0 +1,6 @@
+package com.artcanvaszambia.backend.admin.dto;
+
+import java.util.List;
+
+public record RolePermissionsDto(String role, List<String> permissions) {
+}
