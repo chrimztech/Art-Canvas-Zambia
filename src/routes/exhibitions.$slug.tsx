@@ -12,6 +12,9 @@ import { toast } from "sonner";
 import { continuePayment } from "@/lib/payments";
 import { errorMessage, formatZmw } from "@/lib/utils";
 import { MessageButton } from "@/components/message-button";
+import { AddToCalendar } from "@/components/add-to-calendar";
+import { ReportButton } from "@/components/report-button";
+import { WaitlistButton } from "@/components/waitlist-button";
 
 export const Route = createFileRoute("/exhibitions/$slug")({
   head: () => ({ meta: [{ title: "Exhibition — ChrisEpic Arts" }] }),
@@ -205,6 +208,17 @@ function ExhibitionDetail() {
             label="Message the organiser"
             size="sm"
           />
+          {!ended && (
+            <AddToCalendar
+              event={{
+                title: ex.title,
+                startsAt: ex.startsAt,
+                endsAt: ex.endsAt,
+                location: [ex.venue, ex.city].filter(Boolean).join(", "),
+                description: ex.description,
+              }}
+            />
+          )}
         </div>
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-card p-4">
@@ -215,13 +229,18 @@ function ExhibitionDetail() {
             </p>
           </div>
           {closed ? (
-            <span className="text-sm text-muted-foreground">
-              {ended
-                ? "This exhibition has ended."
-                : left === 0
-                  ? "Sold out"
-                  : "Tickets aren't available."}
-            </span>
+            <div className="w-full space-y-2 sm:w-64">
+              <p className="text-sm text-muted-foreground">
+                {ended
+                  ? "This exhibition has ended."
+                  : left === 0
+                    ? "Sold out"
+                    : "Tickets aren't available."}
+              </p>
+              {!ended && left === 0 && ex.status === "published" && (
+                <WaitlistButton itemType="EXHIBITION" itemId={ex.id} />
+              )}
+            </div>
           ) : (
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-2 text-sm">
@@ -252,9 +271,16 @@ function ExhibitionDetail() {
               busy={busy}
               onSubmit={checkout}
               submitLabel={`Pay ${formatZmw(Number(ex.ticketPriceZmw) * quantity)}`}
+              codes
             />
+            <p className="mt-2 text-xs text-muted-foreground">
+              Discount codes and gift cards are deducted from the amount charged.
+            </p>
           </div>
         )}
+        <div className="mt-4 text-right">
+          <ReportButton targetType="EXHIBITION" targetId={ex.id} label="Report this event" />
+        </div>
       </div>
       <SiteFooter />
     </div>

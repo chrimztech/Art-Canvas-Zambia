@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import type { Enrollment } from "@/lib/types";
+import { AddToCalendar } from "@/components/add-to-calendar";
 import { SiteHeader } from "@/components/site-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -124,14 +125,26 @@ function Group({ title, rows, empty }: { title: string; rows: Enrollment[]; empt
                     {e.location}
                   </p>
                 )}
-                {e.meetingUrl && (
-                  <Button size="sm" className="mt-2" asChild>
-                    <a href={e.meetingUrl} target="_blank" rel="noreferrer">
-                      <Video className="h-4 w-4" />
-                      Join online
-                    </a>
-                  </Button>
-                )}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {e.meetingUrl && (
+                    <Button size="sm" asChild>
+                      <a href={e.meetingUrl} target="_blank" rel="noreferrer">
+                        <Video className="h-4 w-4" />
+                        Join online
+                      </a>
+                    </Button>
+                  )}
+                  {e.startsAt && e.endsAt && new Date(e.endsAt).getTime() > Date.now() && (
+                    <AddToCalendar
+                      event={{
+                        title: e.classTitle ?? "Class",
+                        startsAt: e.startsAt,
+                        endsAt: e.endsAt,
+                        location: e.mode === "online" ? (e.meetingUrl ?? "Online") : e.location,
+                      }}
+                    />
+                  )}
+                </div>
               </div>
             </div>
           ))}

@@ -213,7 +213,8 @@ public class AdminService {
         return profiles.stream().map(p -> {
             User u = users.get(p.getId());
             return new AdminUserDto(p.getId(), p.getDisplayName(), u != null ? u.getEmail() : null,
-                    p.getCreatedAt(), rolesByUser.getOrDefault(p.getId(), List.of()), p.isVerified());
+                    p.getCreatedAt(), rolesByUser.getOrDefault(p.getId(), List.of()), p.isVerified(),
+                    p.isVerified() ? null : p.getVerificationRequestedAt());
         }).toList();
     }
 
@@ -226,7 +227,8 @@ public class AdminService {
         User user = userRepository.findById(userId).orElse(null);
         List<String> roles = userRoleRepository.findByUserId(userId).stream().map(r -> r.getRole().name()).toList();
         return new AdminUserDto(profile.getId(), profile.getDisplayName(), user != null ? user.getEmail() : null,
-                profile.getCreatedAt(), roles, profile.isVerified());
+                profile.getCreatedAt(), roles, profile.isVerified(),
+                profile.isVerified() ? null : profile.getVerificationRequestedAt());
     }
 
     public List<CategoryDto> listCategories() {

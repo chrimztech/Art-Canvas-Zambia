@@ -43,6 +43,12 @@ public record ArtworkDetailDto(
         String originCountry,
         String categoryName,
         String artistLocation,
-        boolean artistVerified
+        boolean artistVerified,
+        BigDecimal shippingFeeZmw,
+        boolean acceptsOffers,
+        // Seller shop state: purchases are paused while on vacation.
+        boolean sellerOnVacation,
+        String sellerVacationMessage,
+        String sellerReturnPolicy
 ) {
 }

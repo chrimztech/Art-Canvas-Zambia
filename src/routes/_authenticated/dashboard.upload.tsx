@@ -47,6 +47,8 @@ const EMPTY = {
   originCity: "",
   originCountry: "Zambia",
   tags: "",
+  shippingFeeZmw: "",
+  acceptsOffers: false,
 };
 type FormState = typeof EMPTY;
 
@@ -76,6 +78,8 @@ function fromDetail(a: ArtworkDetail): FormState {
     originCity: a.originCity ?? "",
     originCountry: a.originCountry ?? "",
     tags: a.tags.join(", "),
+    shippingFeeZmw: a.shippingFeeZmw != null ? String(a.shippingFeeZmw) : "",
+    acceptsOffers: a.acceptsOffers,
   };
 }
 
@@ -154,6 +158,8 @@ function ArtworkForm() {
       readyToHang: form.readyToHang,
       provenance: orNull(form.provenance),
       shippingNotes: orNull(form.shippingNotes),
+      shippingFeeZmw: numOrNull(form.shippingFeeZmw),
+      acceptsOffers: form.acceptsOffers,
       originCity: orNull(form.originCity),
       originCountry: orNull(form.originCountry),
       tags: splitTags(form.tags),
@@ -408,6 +414,7 @@ function ArtworkForm() {
                 {checkbox("certificateOfAuthenticity", "Comes with certificate of authenticity")}
                 {checkbox("framed", "Framed")}
                 {checkbox("readyToHang", "Ready to hang")}
+                {checkbox("acceptsOffers", "Accept offers from collectors")}
               </div>
               {form.signed && (
                 <div>
@@ -430,9 +437,21 @@ function ArtworkForm() {
                   placeholder="Exhibition history, previous owners…"
                 />
               </div>
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-4">
+                <div>
+                  <Label htmlFor="shipfee">Delivery fee (K)</Label>
+                  <Input
+                    id="shipfee"
+                    type="number"
+                    min={0}
+                    value={form.shippingFeeZmw}
+                    onChange={set("shippingFeeZmw")}
+                    placeholder="0 = free"
+                  />
+                </div>
                 <div>
                   <Label htmlFor="weight">Weight (kg)</Label>
+
                   <Input
                     id="weight"
                     type="number"

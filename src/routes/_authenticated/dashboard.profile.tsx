@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
-import type { Profile, Session, UploadResponse } from "@/lib/types";
+import type { BlockedUser, Profile, Session, UploadResponse } from "@/lib/types";
 import type { AuthUser } from "@/hooks/use-auth";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { BadgeCheck, ImagePlus, Monitor } from "lucide-react";
+import { BadgeCheck, ImagePlus, Monitor, ShieldCheck } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { errorMessage } from "@/lib/utils";
 import { usePayoutBanks } from "@/hooks/use-site-settings";
@@ -39,6 +40,10 @@ type Form = {
   payoutPhone: string;
   payoutBankName: string;
   payoutReceiverId: string;
+  shopAnnouncement: string;
+  returnPolicy: string;
+  vacationMode: boolean;
+  vacationMessage: string;
 };
 
 function toForm(p: Profile): Form {
@@ -60,6 +65,10 @@ function toForm(p: Profile): Form {
     payoutPhone: p.payoutPhone ?? "",
     payoutBankName: p.payoutBankName ?? "",
     payoutReceiverId: p.payoutReceiverId ?? "",
+    shopAnnouncement: p.shopAnnouncement ?? "",
+    returnPolicy: p.returnPolicy ?? "",
+    vacationMode: p.vacationMode,
+    vacationMessage: p.vacationMessage ?? "",
   };
 }
 
@@ -68,6 +77,7 @@ const orNull = (v: string) => (v.trim() ? v.trim() : null);
 function ProfilePage() {
   const [me, setMe] = useState<AuthUser | null>(null);
   const [verified, setVerified] = useState(false);
+  const [verificationRequestedAt, setVerificationRequestedAt] = useState<string | null>(null);
   const [form, setForm] = useState<Form | null>(null);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState<"avatarUrl" | "coverImageUrl" | null>(null);
@@ -82,6 +92,7 @@ function ProfilePage() {
         ]);
         setMe(user);
         setVerified(profile.verified);
+        setVerificationRequestedAt(profile.verificationRequestedAt);
         setForm(toForm(profile));
       } catch (e) {
         toast.error(errorMessage(e, "Could not load your profile"));
@@ -143,6 +154,10 @@ function ProfilePage() {
         payoutPhone: orNull(form.payoutPhone),
         payoutBankName: orNull(form.payoutBankName),
         payoutReceiverId: orNull(form.payoutReceiverId),
+        shopAnnouncement: orNull(form.shopAnnouncement),
+        returnPolicy: orNull(form.returnPolicy),
+        vacationMode: form.vacationMode,
+        vacationMessage: orNull(form.vacationMessage),
       });
       setForm(toForm(saved));
       toast.success("Profile updated");
@@ -155,6 +170,16 @@ function ProfilePage() {
   }
 
   const initials = (form.displayName || me.email).slice(0, 2).toUpperCase();
+
+  async function requestVerification() {
+    try {
+      await api.post("/api/me/verification-request");
+      setVerificationRequestedAt(new Date().toISOString());
+      toast.success("Request sent — our team will review your profile");
+    } catch (e) {
+      toast.error(errorMessage(e, "Could not send the request"));
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -416,6 +441,92 @@ function ProfilePage() {
             </Card>
           )}
 
+          {isSeller && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Shop settings</CardTitle>
+                <CardDescription>
+                  Shown on your profile and listings. Vacation mode pauses new orders without hiding
+                  your work.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="announcement">Shop announcement</Label>
+                  <Textarea
+                    id="announcement"
+                    rows={2}
+                    maxLength={500}
+                    value={form.shopAnnouncement}
+                    onChange={set("shopAnnouncement")}
+                    placeholder="New series dropping in November · Free delivery in Lusaka this month"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="returnPolicy">Return policy</Label>
+                  <Textarea
+                    id="returnPolicy"
+                    rows={3}
+                    maxLength={2000}
+                    value={form.returnPolicy}
+                    onChange={set("returnPolicy")}
+                    placeholder="Returns accepted within 14 days if the work arrives damaged or not as described."
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-3">
+                  <div>
+                    <Label htmlFor="vacation">Vacation mode</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Buyers can browse and save your work but can't check out.
+                    </p>
+                  </div>
+                  <Switch
+                    id="vacation"
+                    checked={form.vacationMode}
+                    onCheckedChange={(v) => setForm({ ...form, vacationMode: v })}
+                  />
+                </div>
+                {form.vacationMode && (
+                  <div>
+                    <Label htmlFor="vacationMessage">Away message</Label>
+                    <Input
+                      id="vacationMessage"
+                      maxLength={300}
+                      value={form.vacationMessage}
+                      onChange={set("vacationMessage")}
+                      placeholder="Back on 20 October — orders resume then."
+                    />
+                  </div>
+                )}
+                {!verified && (
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3">
+                    <div className="flex items-start gap-2">
+                      <ShieldCheck className="mt-0.5 h-4 w-4 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium">Get verified</p>
+                        <p className="text-xs text-muted-foreground">
+                          {verificationRequestedAt
+                            ? `Requested ${new Date(verificationRequestedAt).toLocaleDateString()} — we'll be in touch.`
+                            : "A verified badge tells collectors we've confirmed who you are. Complete your bio and links first."}
+                        </p>
+                      </div>
+                    </div>
+                    {!verificationRequestedAt && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={requestVerification}
+                      >
+                        Request verification
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           <Button type="submit" size="lg" disabled={busy || !!uploading}>
             {busy ? "Saving…" : "Save profile"}
           </Button>
@@ -423,6 +534,7 @@ function ProfilePage() {
 
         <ChangePassword />
         <ActiveSessions />
+        <BlockedMembers />
       </div>
     </div>
   );
@@ -545,6 +657,50 @@ function ActiveSessions() {
                 Sign out
               </Button>
             )}
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+function BlockedMembers() {
+  const [blocked, setBlocked] = useState<BlockedUser[] | null>(null);
+  useEffect(() => {
+    api
+      .get<BlockedUser[]>("/api/me/blocks")
+      .then(setBlocked)
+      .catch(() => setBlocked([]));
+  }, []);
+  if (!blocked || blocked.length === 0) return null;
+
+  async function unblock(id: string) {
+    try {
+      await api.del(`/api/me/blocks/${id}`);
+      setBlocked((list) => (list ?? []).filter((b) => b.id !== id));
+      toast.success("Unblocked");
+    } catch (e) {
+      toast.error(errorMessage(e, "Could not unblock"));
+    }
+  }
+
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle>Blocked members</CardTitle>
+        <CardDescription>They can't message you, and you can't message them.</CardDescription>
+      </CardHeader>
+      <CardContent className="divide-y divide-border">
+        {blocked.map((b) => (
+          <div key={b.id} className="flex items-center gap-3 py-2">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={b.avatarUrl ?? undefined} />
+              <AvatarFallback>{(b.displayName ?? "?").slice(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <span className="flex-1 text-sm">{b.displayName ?? "Member"}</span>
+            <Button variant="ghost" size="sm" onClick={() => unblock(b.id)}>
+              Unblock
+            </Button>
           </div>
         ))}
       </CardContent>

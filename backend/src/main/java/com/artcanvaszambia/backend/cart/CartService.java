@@ -23,6 +23,7 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ArtworkRepository artworkRepository;
     private final SupplyRepository supplyRepository;
+    private final com.artcanvaszambia.backend.profile.ProfileRepository profileRepository;
 
     public List<CartItemDto> list() {
         UUID userId = SecurityUtils.currentUserId();
@@ -37,12 +38,18 @@ public class CartService {
                 .collect(Collectors.toMap(Artwork::getId, a -> a));
         Map<UUID, Supply> supplies = supplyRepository.findAllById(supplyIds).stream()
                 .collect(Collectors.toMap(Supply::getId, s -> s));
+        java.util.Set<UUID> away = profileRepository.findByIdIn(java.util.stream.Stream.concat(
+                        artworks.values().stream().map(Artwork::getArtistId), supplies.values().stream().map(Supply::getSellerId))
+                        .distinct().toList()).stream()
+                .filter(com.artcanvaszambia.backend.profile.Profile::isVacationMode)
+                .map(com.artcanvaszambia.backend.profile.Profile::getId).collect(Collectors.toSet());
 
         return items.stream().map(i -> {
             if (CartItem.SUPPLY.equals(i.getItemType())) {
                 Supply s = supplies.get(i.getItemId());
                 if (s == null) return null;
-                boolean available = Supply.PUBLISHED.equals(s.getStatus()) && s.getStock() >= i.getQuantity();
+                boolean available = Supply.PUBLISHED.equals(s.getStatus()) && s.getStock() >= i.getQuantity()
+                        && !away.contains(s.getSellerId());
                 return new CartItemDto(i.getId(), i.getQuantity(), CartItem.SUPPLY, s.getId(), null,
                         s.getName(), s.getSlug(), s.getPriceZmw(), s.getCoverImageUrl(), available, Math.max(s.getStock(), 1));
             }
@@ -50,7 +57,7 @@ public class CartService {
             if (a == null) return null;
             return new CartItemDto(i.getId(), i.getQuantity(), CartItem.ARTWORK, a.getId(), a.getId(),
                     a.getTitle(), a.getSlug(), a.getPriceZmw(), a.getCoverImageUrl(),
-                    Artwork.PUBLISHED.equals(a.getStatus()), maxArtworkQuantity(a));
+                    Artwork.PUBLISHED.equals(a.getStatus()) && !away.contains(a.getArtistId()), maxArtworkQuantity(a));
         }).filter(java.util.Objects::nonNull).toList();
     }
 

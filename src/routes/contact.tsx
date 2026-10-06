@@ -1,11 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { api } from "@/lib/api-client";
+import { errorMessage } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 
+const TOPICS = [
+  ["general", "General question"],
+  ["advisory", "Art advisory — help me find a piece"],
+  ["order", "An order or payment"],
+  ["selling", "Selling on ChrisEpic Arts"],
+  ["press", "Press & partnerships"],
+] as const;
+type Topic = (typeof TOPICS)[number][0];
+
 export const Route = createFileRoute("/contact")({
+  validateSearch: (search: Record<string, unknown>): { topic?: Topic } => ({
+    topic: TOPICS.find(([t]) => t === search.topic)?.[0],
+  }),
   head: () => ({
     meta: [
       { title: "Contact — ChrisEpic Arts" },
@@ -80,6 +100,8 @@ function Contact() {
           </Card>
         </div>
 
+        <ContactForm />
+
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>Prefer email?</CardTitle>
@@ -97,5 +119,127 @@ function Contact() {
 
       <SiteFooter />
     </div>
+  );
+}
+
+function ContactForm() {
+  const { topic: initialTopic } = Route.useSearch();
+  const { user } = useAuth();
+  const [form, setForm] = useState({
+    name: user?.displayName ?? "",
+    email: user?.email ?? "",
+    topic: (initialTopic ?? "general") as Topic,
+    message: "",
+    budget: "",
+  });
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState<string | null>(null);
+  const advisory = form.topic === "advisory";
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const res = await api.post<{ message: string }>("/api/public/contact", {
+        name: form.name,
+        email: form.email,
+        topic: form.topic,
+        message: form.message,
+        budgetZmw: advisory && form.budget ? Number(form.budget) : undefined,
+      });
+      setSent(res.message);
+    } catch (err) {
+      toast.error(errorMessage(err, "Could not send your message"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card className="mt-6" id="message">
+      <CardHeader>
+        <CardTitle>{advisory ? "Free art advisory" : "Send us a message"}</CardTitle>
+        <CardDescription>
+          {advisory
+            ? "Tell us about your space, taste and budget — a curator will reply with a hand-picked shortlist."
+            : "We reply within 1–2 business days."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {sent ? (
+          <p className="text-sm text-primary">{sent}</p>
+        ) : (
+          <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="c-name">Name</Label>
+              <Input
+                id="c-name"
+                required
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="c-email">Email</Label>
+              <Input
+                id="c-email"
+                type="email"
+                required
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+            <div className={advisory ? "" : "sm:col-span-2"}>
+              <Label htmlFor="c-topic">Topic</Label>
+              <select
+                id="c-topic"
+                value={form.topic}
+                onChange={(e) => setForm({ ...form, topic: e.target.value as Topic })}
+                className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                {TOPICS.map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {advisory && (
+              <div>
+                <Label htmlFor="c-budget">Budget (K)</Label>
+                <Input
+                  id="c-budget"
+                  type="number"
+                  min={0}
+                  value={form.budget}
+                  onChange={(e) => setForm({ ...form, budget: e.target.value })}
+                />
+              </div>
+            )}
+            <div className="sm:col-span-2">
+              <Label htmlFor="c-message">Message</Label>
+              <Textarea
+                id="c-message"
+                required
+                rows={5}
+                maxLength={4000}
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                placeholder={
+                  advisory
+                    ? "Room, wall size, colours, styles you love, artists you like…"
+                    : "How can we help?"
+                }
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Button type="submit" disabled={busy}>
+                {busy ? "Sending…" : "Send message"}
+              </Button>
+            </div>
+          </form>
+        )}
+      </CardContent>
+    </Card>
   );
 }

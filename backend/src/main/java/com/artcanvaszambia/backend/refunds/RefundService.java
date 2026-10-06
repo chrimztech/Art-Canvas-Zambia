@@ -52,6 +52,7 @@ public class RefundService {
     private final CommissionRepository commissionRepository;
     private final NotificationService notificationService;
     private final AuditService auditService;
+    private final com.artcanvaszambia.backend.waitlist.WaitlistService waitlistService;
 
     @Transactional
     public RefundDto request(UUID orderItemId, String reason) {
@@ -70,6 +71,9 @@ public class RefundService {
         if (order.getCreatedAt().isBefore(Instant.now().minus(REQUEST_WINDOW))) {
             throw ApiException.badRequest("Refunds can be requested within 60 days of purchase");
         }
+        if (OrderItem.GIFT_CARD.equals(item.getItemType())) {
+            throw ApiException.badRequest("Gift cards can't be refunded once issued — contact us if there's a problem");
+        }
         if (refundRepository.existsByOrderItemIdAndStatus(orderItemId, RefundRequest.REQUESTED)) {
             throw ApiException.conflict("You already have an open refund request for this item");
         }
@@ -78,7 +82,7 @@ public class RefundService {
         r.setOrderId(order.getId());
         r.setBuyerId(me);
         r.setSellerId(item.getSellerId());
-        r.setAmountZmw(item.getLineTotalZmw());
+        r.setAmountZmw(item.getLineTotalZmw().subtract(item.getDiscountZmw()).add(item.getShippingZmw()));
         r.setReason(reason.trim());
         refundRepository.save(r);
         notificationService.refundRequested(r, item, order);
@@ -145,10 +149,12 @@ public class RefundService {
             case OrderItem.CLASS -> enrollmentRepository.findByOrderItemId(item.getId()).ifPresent(e -> {
                 e.setStatus("cancelled");
                 enrollmentRepository.save(e);
+                waitlistService.placesMayHaveOpened(com.artcanvaszambia.backend.waitlist.WaitlistService.CLASS, e.getClassId());
             });
             case OrderItem.EXHIBITION -> ticketRepository.findByOrderItemId(item.getId()).ifPresent(t -> {
                 t.setStatus("cancelled");
                 ticketRepository.save(t);
+                waitlistService.placesMayHaveOpened(com.artcanvaszambia.backend.waitlist.WaitlistService.EXHIBITION, t.getExhibitionId());
             });
             case OrderItem.COMMISSION -> commissionRepository.findById(item.getReferenceId()).ifPresent(c -> {
                 if (!Commission.COMPLETED.equals(c.getStatus())) {

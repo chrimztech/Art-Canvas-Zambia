@@ -23,6 +23,11 @@ public class ProfileController {
         return profileService.mine();
     }
 
+    @PostMapping("/api/me/verification-request")
+    public ProfileDto requestVerification() {
+        return profileService.requestVerification();
+    }
+
     @PutMapping("/api/me/profile")
     public ProfileDto updateMine(@RequestBody ProfileUpdateRequest req) {
         return profileService.updateMine(req);

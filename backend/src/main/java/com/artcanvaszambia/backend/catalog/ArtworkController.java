@@ -20,8 +20,18 @@ public class ArtworkController {
                                         @RequestParam(required = false) BigDecimal minPrice,
                                         @RequestParam(required = false) BigDecimal maxPrice,
                                         @RequestParam(required = false) String sort,
-                                        @RequestParam(defaultValue = "false") boolean available) {
-        return artworkService.search(q, categoryId, minPrice, maxPrice, sort, available);
+                                        @RequestParam(defaultValue = "false") boolean available,
+                                        @RequestParam(required = false) String orientation,
+                                        @RequestParam(defaultValue = "false") boolean framed,
+                                        @RequestParam(defaultValue = "false") boolean readyToHang,
+                                        @RequestParam(defaultValue = "false") boolean freeDelivery) {
+        return artworkService.search(q, categoryId, minPrice, maxPrice, sort, available, orientation, framed, readyToHang, freeDelivery);
+    }
+
+    /** "You may also like": same category or artist, available now. */
+    @GetMapping("/api/artworks/{slug}/related")
+    public List<ArtworkSummaryDto> related(@PathVariable String slug) {
+        return artworkService.related(slug);
     }
 
     @GetMapping("/api/artworks/{slug}")

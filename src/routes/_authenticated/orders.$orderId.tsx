@@ -171,10 +171,38 @@ function OrderDetailPage() {
             ))}
           </div>
 
-          <div className="mt-2 flex justify-between border-t border-border pt-4 text-base font-semibold">
-            <span>Total paid</span>
-            <span>{formatZmw(order.totalZmw)}</span>
-          </div>
+          <dl className="mt-2 space-y-1 border-t border-border pt-4 text-sm">
+            {(Number(order.discountZmw) > 0 ||
+              Number(order.shippingZmw) > 0 ||
+              Number(order.giftCardZmw) > 0) && (
+              <div className="flex justify-between text-muted-foreground">
+                <dt>Items</dt>
+                <dd>{formatZmw(order.subtotalZmw)}</dd>
+              </div>
+            )}
+            {Number(order.discountZmw) > 0 && (
+              <div className="flex justify-between text-muted-foreground">
+                <dt>Discount{order.couponCode ? ` (${order.couponCode})` : ""}</dt>
+                <dd>−{formatZmw(order.discountZmw)}</dd>
+              </div>
+            )}
+            {Number(order.shippingZmw) > 0 && (
+              <div className="flex justify-between text-muted-foreground">
+                <dt>Delivery</dt>
+                <dd>{formatZmw(order.shippingZmw)}</dd>
+              </div>
+            )}
+            {Number(order.giftCardZmw) > 0 && (
+              <div className="flex justify-between text-muted-foreground">
+                <dt>Gift card</dt>
+                <dd>−{formatZmw(order.giftCardZmw)}</dd>
+              </div>
+            )}
+            <div className="flex justify-between pt-1 text-base font-semibold">
+              <dt>Total paid</dt>
+              <dd>{formatZmw(order.totalZmw)}</dd>
+            </div>
+          </dl>
 
           {ship && (
             <div className="mt-6 rounded-xl border border-border bg-background/40 p-4 text-sm">
@@ -329,7 +357,15 @@ function ItemActions({
             {item.myRating != null ? "Edit review" : "Leave a review"}
           </Button>
         )}
+        {item.itemType === "ARTWORK" && !item.refunded && (
+          <Button size="sm" variant="outline" asChild>
+            <Link to="/orders/$orderId/certificate/$itemId" params={{ orderId, itemId: item.id }}>
+              Certificate
+            </Link>
+          </Button>
+        )}
         {item.refundStatus === "requested" && <Badge variant="secondary">Refund requested</Badge>}
+
         {item.refundStatus === "rejected" && <Badge variant="outline">Refund declined</Badge>}
         {canRefund && mode !== "refund" && (
           <Button size="sm" variant="ghost" onClick={() => setMode("refund")}>

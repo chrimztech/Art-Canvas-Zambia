@@ -39,6 +39,7 @@ public class ClassService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final CheckoutService checkoutService;
+    private final com.artcanvaszambia.backend.waitlist.WaitlistService waitlistService;
 
     public List<ClassDto> listPublished() {
         return classRepository.findByStatusOrderByStartsAt(ClassEntity.PUBLISHED).stream().map(this::toDto).toList();
@@ -111,6 +112,7 @@ public class ClassService {
         SecurityUtils.requireOwnerOrAdmin(c.getInstructorId());
         applyRequest(c, req);
         classRepository.save(c);
+        waitlistService.placesMayHaveOpened(com.artcanvaszambia.backend.waitlist.WaitlistService.CLASS, c.getId());
         return toDto(c);
     }
 

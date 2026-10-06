@@ -28,6 +28,8 @@ public record OrderItemDto(
         Integer myRating,
         // Latest refund request status for this item (requested | refunded | rejected), or null.
         String refundStatus,
-        boolean refunded
+        boolean refunded,
+        BigDecimal discountZmw,
+        BigDecimal shippingZmw
 ) {
 }

@@ -94,7 +94,8 @@ public class SecurityConfig {
                                 "/api/classes/**",
                                 "/api/exhibitions/**",
                                 "/api/reviews/seller/**",
-                                "/api/reviews/listing/**"
+                                "/api/reviews/listing/**",
+                                "/api/collections/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

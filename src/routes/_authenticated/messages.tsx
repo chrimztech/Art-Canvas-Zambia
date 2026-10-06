@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, Ban, MessageCircle, Send } from "lucide-react";
+import { ReportButton } from "@/components/report-button";
 import { toast } from "sonner";
 import { api } from "@/lib/api-client";
-import type { ConversationDetail, ConversationSummary } from "@/lib/types";
+import type { BlockedUser, ConversationDetail, ConversationSummary } from "@/lib/types";
 import { cn, errorMessage } from "@/lib/utils";
 import { SiteHeader } from "@/components/site-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -139,6 +140,30 @@ function Thread({ id, onBack }: { id: string; onBack: () => void }) {
     refetchInterval: 8_000,
   });
   const count = data?.messages.length ?? 0;
+  const { data: blocks = [] } = useQuery({
+    queryKey: ["blocks"],
+    queryFn: () => api.get<BlockedUser[]>("/api/me/blocks"),
+  });
+  const otherId = data?.conversation.otherUserId;
+  const blocked = !!otherId && blocks.some((b) => b.id === otherId);
+
+  async function toggleBlock() {
+    if (!otherId) return;
+    if (
+      !blocked &&
+      !window.confirm("Block this member? Neither of you will be able to message the other.")
+    ) {
+      return;
+    }
+    try {
+      if (blocked) await api.del(`/api/me/blocks/${otherId}`);
+      else await api.put(`/api/me/blocks/${otherId}`);
+      await queryClient.invalidateQueries({ queryKey: ["blocks"] });
+      toast.success(blocked ? "Unblocked" : "Blocked");
+    } catch (err) {
+      toast.error(errorMessage(err, "Could not update block"));
+    }
+  }
 
   // Opening a thread marks it read on the server: refresh badges and the list.
   useEffect(() => {
@@ -208,6 +233,16 @@ function Thread({ id, onBack }: { id: string; onBack: () => void }) {
               <p className="truncate text-xs text-muted-foreground">{c.subject}</p>
             ))}
         </div>
+        <div className="ml-auto flex shrink-0 items-center gap-3">
+          <ReportButton targetType="USER" targetId={c.otherUserId} />
+          <button
+            type="button"
+            onClick={toggleBlock}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive"
+          >
+            <Ban className="h-3 w-3" /> {blocked ? "Unblock" : "Block"}
+          </button>
+        </div>
       </header>
       <div className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
         {data.messages.map((m) => (
@@ -235,6 +270,11 @@ function Thread({ id, onBack }: { id: string; onBack: () => void }) {
         ))}
         <div ref={bottom} />
       </div>
+      {blocked && (
+        <p className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
+          You've blocked this member. Unblock them to send messages.
+        </p>
+      )}
       <form onSubmit={send} className="flex items-end gap-2 border-t border-border p-3">
         <Textarea
           rows={2}

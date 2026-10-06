@@ -9,12 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SuppliesRouteImport } from './routes/supplies'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as GiftCardsRouteImport } from './routes/gift-cards'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ExhibitionsRouteImport } from './routes/exhibitions'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -29,15 +31,19 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SuppliesIndexRouteImport } from './routes/supplies.index'
 import { Route as ExhibitionsIndexRouteImport } from './routes/exhibitions.index'
+import { Route as CollectionsIndexRouteImport } from './routes/collections.index'
 import { Route as ClassesIndexRouteImport } from './routes/classes.index'
 import { Route as ArtistsIndexRouteImport } from './routes/artists.index'
 import { Route as SuppliesSlugRouteImport } from './routes/supplies.$slug'
 import { Route as ExhibitionsSlugRouteImport } from './routes/exhibitions.$slug'
+import { Route as CollectionsSlugRouteImport } from './routes/collections.$slug'
 import { Route as ClassesSlugRouteImport } from './routes/classes.$slug'
 import { Route as ArtworksSlugRouteImport } from './routes/artworks.$slug'
 import { Route as ArtistsIdRouteImport } from './routes/artists.$id'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedFollowingRouteImport } from './routes/_authenticated/following'
 import { Route as AuthenticatedFavoritesRouteImport } from './routes/_authenticated/favorites'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -46,16 +52,25 @@ import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedOrdersOrderIdRouteImport } from './routes/_authenticated/orders.$orderId'
 import { Route as AuthenticatedDashboardUploadRouteImport } from './routes/_authenticated/dashboard.upload'
 import { Route as AuthenticatedDashboardTicketsRouteImport } from './routes/_authenticated/dashboard.tickets'
+import { Route as AuthenticatedDashboardStatsRouteImport } from './routes/_authenticated/dashboard.stats'
 import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_authenticated/dashboard.profile'
+import { Route as AuthenticatedDashboardOffersRouteImport } from './routes/_authenticated/dashboard.offers'
 import { Route as AuthenticatedDashboardNewSupplyRouteImport } from './routes/_authenticated/dashboard.new-supply'
 import { Route as AuthenticatedDashboardNewExhibitionRouteImport } from './routes/_authenticated/dashboard.new-exhibition'
 import { Route as AuthenticatedDashboardNewClassRouteImport } from './routes/_authenticated/dashboard.new-class'
 import { Route as AuthenticatedDashboardMyCommissionsRouteImport } from './routes/_authenticated/dashboard.my-commissions'
 import { Route as AuthenticatedDashboardListingsRouteImport } from './routes/_authenticated/dashboard.listings'
 import { Route as AuthenticatedDashboardLearningRouteImport } from './routes/_authenticated/dashboard.learning'
+import { Route as AuthenticatedDashboardCouponsRouteImport } from './routes/_authenticated/dashboard.coupons'
 import { Route as AuthenticatedDashboardCommissionsRouteImport } from './routes/_authenticated/dashboard.commissions'
 import { Route as AuthenticatedDashboardArtworksRouteImport } from './routes/_authenticated/dashboard.artworks'
+import { Route as AuthenticatedOrdersOrderIdCertificateItemIdRouteImport } from './routes/_authenticated/orders_.$orderId.certificate.$itemId'
 
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -84,6 +99,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiftCardsRoute = GiftCardsRouteImport.update({
+  id: '/gift-cards',
+  path: '/gift-cards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -155,6 +175,11 @@ const ExhibitionsIndexRoute = ExhibitionsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ExhibitionsRoute,
 } as any)
+const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
+  id: '/collections/',
+  path: '/collections/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClassesIndexRoute = ClassesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -174,6 +199,11 @@ const ExhibitionsSlugRoute = ExhibitionsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ExhibitionsRoute,
+} as any)
+const CollectionsSlugRoute = CollectionsSlugRouteImport.update({
+  id: '/collections/$slug',
+  path: '/collections/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ClassesSlugRoute = ClassesSlugRouteImport.update({
   id: '/$slug',
@@ -195,9 +225,20 @@ const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
   path: '/sales',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFollowingRoute = AuthenticatedFollowingRouteImport.update({
+  id: '/following',
+  path: '/following',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFavoritesRoute = AuthenticatedFavoritesRouteImport.update({
@@ -245,10 +286,22 @@ const AuthenticatedDashboardTicketsRoute =
     path: '/tickets',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardStatsRoute =
+  AuthenticatedDashboardStatsRouteImport.update({
+    id: '/stats',
+    path: '/stats',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardProfileRoute =
   AuthenticatedDashboardProfileRouteImport.update({
     id: '/profile',
     path: '/profile',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardOffersRoute =
+  AuthenticatedDashboardOffersRouteImport.update({
+    id: '/offers',
+    path: '/offers',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardNewSupplyRoute =
@@ -287,6 +340,12 @@ const AuthenticatedDashboardLearningRoute =
     path: '/learning',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardCouponsRoute =
+  AuthenticatedDashboardCouponsRouteImport.update({
+    id: '/coupons',
+    path: '/coupons',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardCommissionsRoute =
   AuthenticatedDashboardCommissionsRouteImport.update({
     id: '/commissions',
@@ -298,6 +357,12 @@ const AuthenticatedDashboardArtworksRoute =
     id: '/artworks',
     path: '/artworks',
     getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedOrdersOrderIdCertificateItemIdRoute =
+  AuthenticatedOrdersOrderIdCertificateItemIdRouteImport.update({
+    id: '/orders_/$orderId/certificate/$itemId',
+    path: '/orders/$orderId/certificate/$itemId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -312,40 +377,50 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/exhibitions': typeof ExhibitionsRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/gift-cards': typeof GiftCardsRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sell': typeof SellRoute
   '/supplies': typeof SuppliesRouteWithChildren
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/favorites': typeof AuthenticatedFavoritesRoute
+  '/following': typeof AuthenticatedFollowingRoute
   '/messages': typeof AuthenticatedMessagesRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/artists/$id': typeof ArtistsIdRoute
   '/artworks/$slug': typeof ArtworksSlugRoute
   '/classes/$slug': typeof ClassesSlugRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
   '/exhibitions/$slug': typeof ExhibitionsSlugRoute
   '/supplies/$slug': typeof SuppliesSlugRoute
   '/artists/': typeof ArtistsIndexRoute
   '/classes/': typeof ClassesIndexRoute
+  '/collections/': typeof CollectionsIndexRoute
   '/exhibitions/': typeof ExhibitionsIndexRoute
   '/supplies/': typeof SuppliesIndexRoute
   '/dashboard/artworks': typeof AuthenticatedDashboardArtworksRoute
   '/dashboard/commissions': typeof AuthenticatedDashboardCommissionsRoute
+  '/dashboard/coupons': typeof AuthenticatedDashboardCouponsRoute
   '/dashboard/learning': typeof AuthenticatedDashboardLearningRoute
   '/dashboard/listings': typeof AuthenticatedDashboardListingsRoute
   '/dashboard/my-commissions': typeof AuthenticatedDashboardMyCommissionsRoute
   '/dashboard/new-class': typeof AuthenticatedDashboardNewClassRoute
   '/dashboard/new-exhibition': typeof AuthenticatedDashboardNewExhibitionRoute
   '/dashboard/new-supply': typeof AuthenticatedDashboardNewSupplyRoute
+  '/dashboard/offers': typeof AuthenticatedDashboardOffersRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
+  '/dashboard/stats': typeof AuthenticatedDashboardStatsRoute
   '/dashboard/tickets': typeof AuthenticatedDashboardTicketsRoute
   '/dashboard/upload': typeof AuthenticatedDashboardUploadRoute
   '/orders/$orderId': typeof AuthenticatedOrdersOrderIdRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
+  '/orders/$orderId/certificate/$itemId': typeof AuthenticatedOrdersOrderIdCertificateItemIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -356,38 +431,48 @@ export interface FileRoutesByTo {
   '/commissions': typeof CommissionsRoute
   '/contact': typeof ContactRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/gift-cards': typeof GiftCardsRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sell': typeof SellRoute
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/favorites': typeof AuthenticatedFavoritesRoute
+  '/following': typeof AuthenticatedFollowingRoute
   '/messages': typeof AuthenticatedMessagesRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/artists/$id': typeof ArtistsIdRoute
   '/artworks/$slug': typeof ArtworksSlugRoute
   '/classes/$slug': typeof ClassesSlugRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
   '/exhibitions/$slug': typeof ExhibitionsSlugRoute
   '/supplies/$slug': typeof SuppliesSlugRoute
   '/artists': typeof ArtistsIndexRoute
   '/classes': typeof ClassesIndexRoute
+  '/collections': typeof CollectionsIndexRoute
   '/exhibitions': typeof ExhibitionsIndexRoute
   '/supplies': typeof SuppliesIndexRoute
   '/dashboard/artworks': typeof AuthenticatedDashboardArtworksRoute
   '/dashboard/commissions': typeof AuthenticatedDashboardCommissionsRoute
+  '/dashboard/coupons': typeof AuthenticatedDashboardCouponsRoute
   '/dashboard/learning': typeof AuthenticatedDashboardLearningRoute
   '/dashboard/listings': typeof AuthenticatedDashboardListingsRoute
   '/dashboard/my-commissions': typeof AuthenticatedDashboardMyCommissionsRoute
   '/dashboard/new-class': typeof AuthenticatedDashboardNewClassRoute
   '/dashboard/new-exhibition': typeof AuthenticatedDashboardNewExhibitionRoute
   '/dashboard/new-supply': typeof AuthenticatedDashboardNewSupplyRoute
+  '/dashboard/offers': typeof AuthenticatedDashboardOffersRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
+  '/dashboard/stats': typeof AuthenticatedDashboardStatsRoute
   '/dashboard/tickets': typeof AuthenticatedDashboardTicketsRoute
   '/dashboard/upload': typeof AuthenticatedDashboardUploadRoute
   '/orders/$orderId': typeof AuthenticatedOrdersOrderIdRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
+  '/orders/$orderId/certificate/$itemId': typeof AuthenticatedOrdersOrderIdCertificateItemIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -403,40 +488,50 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/exhibitions': typeof ExhibitionsRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/gift-cards': typeof GiftCardsRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sell': typeof SellRoute
   '/supplies': typeof SuppliesRouteWithChildren
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/favorites': typeof AuthenticatedFavoritesRoute
+  '/_authenticated/following': typeof AuthenticatedFollowingRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/artists/$id': typeof ArtistsIdRoute
   '/artworks/$slug': typeof ArtworksSlugRoute
   '/classes/$slug': typeof ClassesSlugRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
   '/exhibitions/$slug': typeof ExhibitionsSlugRoute
   '/supplies/$slug': typeof SuppliesSlugRoute
   '/artists/': typeof ArtistsIndexRoute
   '/classes/': typeof ClassesIndexRoute
+  '/collections/': typeof CollectionsIndexRoute
   '/exhibitions/': typeof ExhibitionsIndexRoute
   '/supplies/': typeof SuppliesIndexRoute
   '/_authenticated/dashboard/artworks': typeof AuthenticatedDashboardArtworksRoute
   '/_authenticated/dashboard/commissions': typeof AuthenticatedDashboardCommissionsRoute
+  '/_authenticated/dashboard/coupons': typeof AuthenticatedDashboardCouponsRoute
   '/_authenticated/dashboard/learning': typeof AuthenticatedDashboardLearningRoute
   '/_authenticated/dashboard/listings': typeof AuthenticatedDashboardListingsRoute
   '/_authenticated/dashboard/my-commissions': typeof AuthenticatedDashboardMyCommissionsRoute
   '/_authenticated/dashboard/new-class': typeof AuthenticatedDashboardNewClassRoute
   '/_authenticated/dashboard/new-exhibition': typeof AuthenticatedDashboardNewExhibitionRoute
   '/_authenticated/dashboard/new-supply': typeof AuthenticatedDashboardNewSupplyRoute
+  '/_authenticated/dashboard/offers': typeof AuthenticatedDashboardOffersRoute
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
+  '/_authenticated/dashboard/stats': typeof AuthenticatedDashboardStatsRoute
   '/_authenticated/dashboard/tickets': typeof AuthenticatedDashboardTicketsRoute
   '/_authenticated/dashboard/upload': typeof AuthenticatedDashboardUploadRoute
   '/_authenticated/orders/$orderId': typeof AuthenticatedOrdersOrderIdRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
+  '/_authenticated/orders_/$orderId/certificate/$itemId': typeof AuthenticatedOrdersOrderIdCertificateItemIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -452,40 +547,50 @@ export interface FileRouteTypes {
     | '/contact'
     | '/exhibitions'
     | '/forgot-password'
+    | '/gift-cards'
     | '/help'
     | '/privacy'
     | '/reset-password'
     | '/sell'
     | '/supplies'
     | '/terms'
+    | '/unsubscribe'
     | '/admin'
     | '/dashboard'
     | '/favorites'
+    | '/following'
     | '/messages'
+    | '/notifications'
     | '/sales'
     | '/artists/$id'
     | '/artworks/$slug'
     | '/classes/$slug'
+    | '/collections/$slug'
     | '/exhibitions/$slug'
     | '/supplies/$slug'
     | '/artists/'
     | '/classes/'
+    | '/collections/'
     | '/exhibitions/'
     | '/supplies/'
     | '/dashboard/artworks'
     | '/dashboard/commissions'
+    | '/dashboard/coupons'
     | '/dashboard/learning'
     | '/dashboard/listings'
     | '/dashboard/my-commissions'
     | '/dashboard/new-class'
     | '/dashboard/new-exhibition'
     | '/dashboard/new-supply'
+    | '/dashboard/offers'
     | '/dashboard/profile'
+    | '/dashboard/stats'
     | '/dashboard/tickets'
     | '/dashboard/upload'
     | '/orders/$orderId'
     | '/dashboard/'
     | '/orders/'
+    | '/orders/$orderId/certificate/$itemId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -496,38 +601,48 @@ export interface FileRouteTypes {
     | '/commissions'
     | '/contact'
     | '/forgot-password'
+    | '/gift-cards'
     | '/help'
     | '/privacy'
     | '/reset-password'
     | '/sell'
     | '/terms'
+    | '/unsubscribe'
     | '/admin'
     | '/favorites'
+    | '/following'
     | '/messages'
+    | '/notifications'
     | '/sales'
     | '/artists/$id'
     | '/artworks/$slug'
     | '/classes/$slug'
+    | '/collections/$slug'
     | '/exhibitions/$slug'
     | '/supplies/$slug'
     | '/artists'
     | '/classes'
+    | '/collections'
     | '/exhibitions'
     | '/supplies'
     | '/dashboard/artworks'
     | '/dashboard/commissions'
+    | '/dashboard/coupons'
     | '/dashboard/learning'
     | '/dashboard/listings'
     | '/dashboard/my-commissions'
     | '/dashboard/new-class'
     | '/dashboard/new-exhibition'
     | '/dashboard/new-supply'
+    | '/dashboard/offers'
     | '/dashboard/profile'
+    | '/dashboard/stats'
     | '/dashboard/tickets'
     | '/dashboard/upload'
     | '/orders/$orderId'
     | '/dashboard'
     | '/orders'
+    | '/orders/$orderId/certificate/$itemId'
   id:
     | '__root__'
     | '/'
@@ -542,40 +657,50 @@ export interface FileRouteTypes {
     | '/contact'
     | '/exhibitions'
     | '/forgot-password'
+    | '/gift-cards'
     | '/help'
     | '/privacy'
     | '/reset-password'
     | '/sell'
     | '/supplies'
     | '/terms'
+    | '/unsubscribe'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/favorites'
+    | '/_authenticated/following'
     | '/_authenticated/messages'
+    | '/_authenticated/notifications'
     | '/_authenticated/sales'
     | '/artists/$id'
     | '/artworks/$slug'
     | '/classes/$slug'
+    | '/collections/$slug'
     | '/exhibitions/$slug'
     | '/supplies/$slug'
     | '/artists/'
     | '/classes/'
+    | '/collections/'
     | '/exhibitions/'
     | '/supplies/'
     | '/_authenticated/dashboard/artworks'
     | '/_authenticated/dashboard/commissions'
+    | '/_authenticated/dashboard/coupons'
     | '/_authenticated/dashboard/learning'
     | '/_authenticated/dashboard/listings'
     | '/_authenticated/dashboard/my-commissions'
     | '/_authenticated/dashboard/new-class'
     | '/_authenticated/dashboard/new-exhibition'
     | '/_authenticated/dashboard/new-supply'
+    | '/_authenticated/dashboard/offers'
     | '/_authenticated/dashboard/profile'
+    | '/_authenticated/dashboard/stats'
     | '/_authenticated/dashboard/tickets'
     | '/_authenticated/dashboard/upload'
     | '/_authenticated/orders/$orderId'
     | '/_authenticated/dashboard/'
     | '/_authenticated/orders/'
+    | '/_authenticated/orders_/$orderId/certificate/$itemId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -591,17 +716,28 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   ExhibitionsRoute: typeof ExhibitionsRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  GiftCardsRoute: typeof GiftCardsRoute
   HelpRoute: typeof HelpRoute
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SellRoute: typeof SellRoute
   SuppliesRoute: typeof SuppliesRouteWithChildren
   TermsRoute: typeof TermsRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   ArtworksSlugRoute: typeof ArtworksSlugRoute
+  CollectionsSlugRoute: typeof CollectionsSlugRoute
+  CollectionsIndexRoute: typeof CollectionsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -642,6 +778,13 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gift-cards': {
+      id: '/gift-cards'
+      path: '/gift-cards'
+      fullPath: '/gift-cards'
+      preLoaderRoute: typeof GiftCardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -742,6 +885,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExhibitionsIndexRouteImport
       parentRoute: typeof ExhibitionsRoute
     }
+    '/collections/': {
+      id: '/collections/'
+      path: '/collections'
+      fullPath: '/collections/'
+      preLoaderRoute: typeof CollectionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/classes/': {
       id: '/classes/'
       path: '/'
@@ -769,6 +919,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/exhibitions/$slug'
       preLoaderRoute: typeof ExhibitionsSlugRouteImport
       parentRoute: typeof ExhibitionsRoute
+    }
+    '/collections/$slug': {
+      id: '/collections/$slug'
+      path: '/collections/$slug'
+      fullPath: '/collections/$slug'
+      preLoaderRoute: typeof CollectionsSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/classes/$slug': {
       id: '/classes/$slug'
@@ -798,11 +955,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/messages': {
       id: '/_authenticated/messages'
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof AuthenticatedMessagesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/following': {
+      id: '/_authenticated/following'
+      path: '/following'
+      fullPath: '/following'
+      preLoaderRoute: typeof AuthenticatedFollowingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/favorites': {
@@ -861,11 +1032,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardTicketsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/stats': {
+      id: '/_authenticated/dashboard/stats'
+      path: '/stats'
+      fullPath: '/dashboard/stats'
+      preLoaderRoute: typeof AuthenticatedDashboardStatsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/profile': {
       id: '/_authenticated/dashboard/profile'
       path: '/profile'
       fullPath: '/dashboard/profile'
       preLoaderRoute: typeof AuthenticatedDashboardProfileRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/offers': {
+      id: '/_authenticated/dashboard/offers'
+      path: '/offers'
+      fullPath: '/dashboard/offers'
+      preLoaderRoute: typeof AuthenticatedDashboardOffersRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/new-supply': {
@@ -910,6 +1095,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardLearningRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/coupons': {
+      id: '/_authenticated/dashboard/coupons'
+      path: '/coupons'
+      fullPath: '/dashboard/coupons'
+      preLoaderRoute: typeof AuthenticatedDashboardCouponsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/commissions': {
       id: '/_authenticated/dashboard/commissions'
       path: '/commissions'
@@ -924,19 +1116,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardArtworksRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/orders_/$orderId/certificate/$itemId': {
+      id: '/_authenticated/orders_/$orderId/certificate/$itemId'
+      path: '/orders/$orderId/certificate/$itemId'
+      fullPath: '/orders/$orderId/certificate/$itemId'
+      preLoaderRoute: typeof AuthenticatedOrdersOrderIdCertificateItemIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardArtworksRoute: typeof AuthenticatedDashboardArtworksRoute
   AuthenticatedDashboardCommissionsRoute: typeof AuthenticatedDashboardCommissionsRoute
+  AuthenticatedDashboardCouponsRoute: typeof AuthenticatedDashboardCouponsRoute
   AuthenticatedDashboardLearningRoute: typeof AuthenticatedDashboardLearningRoute
   AuthenticatedDashboardListingsRoute: typeof AuthenticatedDashboardListingsRoute
   AuthenticatedDashboardMyCommissionsRoute: typeof AuthenticatedDashboardMyCommissionsRoute
   AuthenticatedDashboardNewClassRoute: typeof AuthenticatedDashboardNewClassRoute
   AuthenticatedDashboardNewExhibitionRoute: typeof AuthenticatedDashboardNewExhibitionRoute
   AuthenticatedDashboardNewSupplyRoute: typeof AuthenticatedDashboardNewSupplyRoute
+  AuthenticatedDashboardOffersRoute: typeof AuthenticatedDashboardOffersRoute
   AuthenticatedDashboardProfileRoute: typeof AuthenticatedDashboardProfileRoute
+  AuthenticatedDashboardStatsRoute: typeof AuthenticatedDashboardStatsRoute
   AuthenticatedDashboardTicketsRoute: typeof AuthenticatedDashboardTicketsRoute
   AuthenticatedDashboardUploadRoute: typeof AuthenticatedDashboardUploadRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
@@ -947,6 +1149,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardArtworksRoute: AuthenticatedDashboardArtworksRoute,
     AuthenticatedDashboardCommissionsRoute:
       AuthenticatedDashboardCommissionsRoute,
+    AuthenticatedDashboardCouponsRoute: AuthenticatedDashboardCouponsRoute,
     AuthenticatedDashboardLearningRoute: AuthenticatedDashboardLearningRoute,
     AuthenticatedDashboardListingsRoute: AuthenticatedDashboardListingsRoute,
     AuthenticatedDashboardMyCommissionsRoute:
@@ -955,7 +1158,9 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardNewExhibitionRoute:
       AuthenticatedDashboardNewExhibitionRoute,
     AuthenticatedDashboardNewSupplyRoute: AuthenticatedDashboardNewSupplyRoute,
+    AuthenticatedDashboardOffersRoute: AuthenticatedDashboardOffersRoute,
     AuthenticatedDashboardProfileRoute: AuthenticatedDashboardProfileRoute,
+    AuthenticatedDashboardStatsRoute: AuthenticatedDashboardStatsRoute,
     AuthenticatedDashboardTicketsRoute: AuthenticatedDashboardTicketsRoute,
     AuthenticatedDashboardUploadRoute: AuthenticatedDashboardUploadRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
@@ -970,20 +1175,27 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedFavoritesRoute: typeof AuthenticatedFavoritesRoute
+  AuthenticatedFollowingRoute: typeof AuthenticatedFollowingRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedOrdersOrderIdRoute: typeof AuthenticatedOrdersOrderIdRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
+  AuthenticatedOrdersOrderIdCertificateItemIdRoute: typeof AuthenticatedOrdersOrderIdCertificateItemIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedFavoritesRoute: AuthenticatedFavoritesRoute,
+  AuthenticatedFollowingRoute: AuthenticatedFollowingRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedOrdersOrderIdRoute: AuthenticatedOrdersOrderIdRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
+  AuthenticatedOrdersOrderIdCertificateItemIdRoute:
+    AuthenticatedOrdersOrderIdCertificateItemIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -1056,13 +1268,17 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   ExhibitionsRoute: ExhibitionsRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  GiftCardsRoute: GiftCardsRoute,
   HelpRoute: HelpRoute,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SellRoute: SellRoute,
   SuppliesRoute: SuppliesRouteWithChildren,
   TermsRoute: TermsRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   ArtworksSlugRoute: ArtworksSlugRoute,
+  CollectionsSlugRoute: CollectionsSlugRoute,
+  CollectionsIndexRoute: CollectionsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

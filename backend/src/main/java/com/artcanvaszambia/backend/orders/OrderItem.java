@@ -20,6 +20,7 @@ public class OrderItem {
     public static final String CLASS = "CLASS";
     public static final String EXHIBITION = "EXHIBITION";
     public static final String COMMISSION = "COMMISSION";
+    public static final String GIFT_CARD = "GIFT_CARD";
 
     public static final String FULFILLMENT_PENDING = "pending";
     public static final String FULFILLMENT_SHIPPED = "shipped";

@@ -31,6 +31,7 @@ public class ArtworkService {
     private final ArtworkImageRepository artworkImageRepository;
     private final ProfileRepository profileRepository;
     private final CategoryRepository categoryRepository;
+    private final org.springframework.context.ApplicationEventPublisher events;
 
     private static final List<String> PUBLIC_STATUSES = List.of(Artwork.PUBLISHED, Artwork.SOLD);
 
@@ -40,6 +41,12 @@ public class ArtworkService {
      */
     public List<ArtworkSummaryDto> search(String q, UUID categoryId, BigDecimal minPrice, BigDecimal maxPrice,
                                           String sort, boolean available) {
+        return search(q, categoryId, minPrice, maxPrice, sort, available, null, false, false, false);
+    }
+
+    public List<ArtworkSummaryDto> search(String q, UUID categoryId, BigDecimal minPrice, BigDecimal maxPrice,
+                                          String sort, boolean available, String orientation, boolean framed,
+                                          boolean readyToHang, boolean freeDelivery) {
         Specification<Artwork> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(available
@@ -48,6 +55,12 @@ public class ArtworkService {
             if (categoryId != null) predicates.add(cb.equal(root.get("categoryId"), categoryId));
             if (minPrice != null) predicates.add(cb.greaterThanOrEqualTo(root.get("priceZmw"), minPrice));
             if (maxPrice != null) predicates.add(cb.lessThanOrEqualTo(root.get("priceZmw"), maxPrice));
+            if (orientation != null && List.of("portrait", "landscape", "square").contains(orientation)) {
+                predicates.add(cb.equal(root.get("orientation"), orientation));
+            }
+            if (framed) predicates.add(cb.isTrue(root.get("framed")));
+            if (readyToHang) predicates.add(cb.isTrue(root.get("readyToHang")));
+            if (freeDelivery) predicates.add(cb.equal(root.get("shippingFeeZmw"), BigDecimal.ZERO));
             if (q != null && !q.isBlank()) {
                 String like = "%" + q.trim().toLowerCase() + "%";
                 Subquery<UUID> artistMatch = query.subquery(UUID.class);
@@ -126,7 +139,9 @@ public class ArtworkService {
                 images, a.getCreatedAt(), a.getMaterials(), a.getStyle(), a.getTags(), a.getWeightKg(),
                 a.isFramed(), a.getProvenance(), a.isSigned(), a.getSignatureLocation(), a.isCertificateOfAuthenticity(),
                 a.getSurface(), a.getOrientation(), a.getShippingNotes(), a.isReadyToHang(), a.getOriginCity(), a.getOriginCountry(),
-                categoryName, p != null ? p.getLocation() : null, p != null && p.isVerified());
+                categoryName, p != null ? p.getLocation() : null, p != null && p.isVerified(),
+                a.getShippingFeeZmw(), a.isAcceptsOffers(), p != null && p.isVacationMode(),
+                p != null && p.isVacationMode() ? p.getVacationMessage() : null, p != null ? p.getReturnPolicy() : null);
     }
 
     @Transactional
@@ -142,6 +157,7 @@ public class ArtworkService {
         a.setStatus(Artwork.DRAFT.equals(req.status()) ? Artwork.DRAFT : Artwork.PUBLISHED);
         artworkRepository.save(a);
         replaceImages(a.getId(), req.imageUrls());
+        events.publishEvent(new ArtworkPublishedEvent(a.getId()));
         return toDetail(a);
     }
 
@@ -155,6 +171,7 @@ public class ArtworkService {
         }
         artworkRepository.save(a);
         replaceImages(a.getId(), req.imageUrls());
+        events.publishEvent(new ArtworkPublishedEvent(a.getId()));
         return toDetail(a);
     }
 
@@ -195,6 +212,11 @@ public class ArtworkService {
         a.setReadyToHang(req.readyToHang() != null && req.readyToHang());
         a.setOriginCity(req.originCity());
         a.setOriginCountry(req.originCountry());
+        if (req.shippingFeeZmw() != null && req.shippingFeeZmw().signum() < 0) {
+            throw ApiException.badRequest("Delivery fee can't be negative");
+        }
+        a.setShippingFeeZmw(req.shippingFeeZmw() != null ? req.shippingFeeZmw() : BigDecimal.ZERO);
+        a.setAcceptsOffers(req.acceptsOffers() == null || req.acceptsOffers());
     }
 
     @Transactional
@@ -206,7 +228,20 @@ public class ArtworkService {
         }
         a.setStatus(status);
         artworkRepository.save(a);
+        events.publishEvent(new ArtworkPublishedEvent(a.getId()));
         return toSummaries(List.of(a)).get(0);
+    }
+
+    public List<ArtworkSummaryDto> related(String slug) {
+        Artwork a = artworkRepository.findBySlug(slug).orElseThrow(() -> ApiException.notFound("Artwork not found"));
+        Specification<Artwork> spec = (root, query, cb) -> cb.and(
+                cb.equal(root.get("status"), Artwork.PUBLISHED),
+                cb.notEqual(root.get("id"), a.getId()),
+                a.getCategoryId() != null
+                        ? cb.or(cb.equal(root.get("categoryId"), a.getCategoryId()), cb.equal(root.get("artistId"), a.getArtistId()))
+                        : cb.equal(root.get("artistId"), a.getArtistId()));
+        List<Artwork> found = artworkRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "viewCount"));
+        return toSummaries(found.stream().limit(8).toList());
     }
 
     @Transactional

@@ -1,8 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api, hasSession } from "@/lib/api-client";
-import type { ArtistDetail, ArtworkDetail } from "@/lib/types";
+import type { ArtistDetail, ArtworkDetail, ArtworkSummary } from "@/lib/types";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ArtworkCard } from "@/components/artwork-card";
@@ -11,9 +11,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useFavorites } from "@/hooks/use-favorites";
 import { MessageButton } from "@/components/message-button";
 import { RatingBadge } from "@/components/star-rating";
+import { OfferButton } from "@/components/offer-button";
+import { ReportButton } from "@/components/report-button";
+import { ViewOnWall } from "@/components/view-on-wall";
+import { rememberViewed, useRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { useSellerReviews } from "@/hooks/use-seller-reviews";
 import { cn, errorMessage, formatZmw } from "@/lib/utils";
-import { BadgeCheck, Brush, Heart, MapPin, Share2, ShieldCheck, Truck } from "lucide-react";
+import {
+  BadgeCheck,
+  Brush,
+  Heart,
+  MapPin,
+  Palmtree,
+  RotateCcw,
+  Share2,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
 import { toast } from "sonner";
 
 const artworkQuery = (slug: string) =>
@@ -41,6 +55,9 @@ export const Route = createFileRoute("/artworks/$slug")({
         { property: "og:title", content: d?.title ?? "Artwork" },
         { property: "og:image", content: d?.coverImageUrl ?? "" },
       ],
+      scripts: d
+        ? [{ type: "application/ld+json", children: JSON.stringify(productJsonLd(d)) }]
+        : [],
     };
   },
   loader: ({ context, params }) => context.queryClient.ensureQueryData(artworkQuery(params.slug)),
@@ -58,6 +75,30 @@ export const Route = createFileRoute("/artworks/$slug")({
   ),
 });
 
+/** schema.org Product/VisualArtwork data so search engines can show price and availability. */
+function productJsonLd(a: ArtworkDetail) {
+  return {
+    "@context": "https://schema.org",
+    "@type": ["Product", "VisualArtwork"],
+    name: a.title,
+    description: a.description ?? undefined,
+    image: [a.coverImageUrl, ...a.images].filter(Boolean),
+    artform: a.categoryName ?? undefined,
+    artMedium: a.medium ?? undefined,
+    dateCreated: a.yearCreated ? String(a.yearCreated) : undefined,
+    creator: { "@type": "Person", name: a.artistDisplayName ?? undefined },
+    brand: { "@type": "Brand", name: a.artistDisplayName ?? "ChrisEpic Arts" },
+    offers: {
+      "@type": "Offer",
+      price: Number(a.priceZmw),
+      priceCurrency: "ZMW",
+      availability:
+        a.status === "published" ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+      itemCondition: "https://schema.org/NewCondition",
+    },
+  };
+}
+
 function ArtworkDetailPage() {
   const { slug } = Route.useParams();
   const queryClient = useQueryClient();
@@ -73,9 +114,29 @@ function ArtworkDetailPage() {
   });
   const moreFromArtist = (artist?.artworks ?? []).filter((w) => w.id !== a.id).slice(0, 4);
   const { data: reviews } = useSellerReviews(a.artistId);
+  const { data: related = [] } = useQuery({
+    queryKey: ["artwork-related", slug],
+    queryFn: () => api.get<ArtworkSummary[]>(`/api/artworks/${slug}/related`),
+  });
+  const recentlyViewed = useRecentlyViewed(a.id).slice(0, 4);
+  useEffect(() => {
+    rememberViewed({
+      id: a.id,
+      slug: a.slug,
+      title: a.title,
+      priceZmw: a.priceZmw,
+      coverImageUrl: a.coverImageUrl,
+      medium: a.medium,
+      artistId: a.artistId,
+      artistDisplayName: a.artistDisplayName,
+      status: a.status,
+      viewCount: a.viewCount,
+      createdAt: a.createdAt,
+    });
+  }, [a]);
 
   const sold = a.status === "sold";
-  const unavailable = a.status !== "published";
+  const unavailable = a.status !== "published" || a.sellerOnVacation;
 
   async function addToCart() {
     if (!hasSession()) {
@@ -159,6 +220,11 @@ function ArtworkDetailPage() {
                 />
               )}
             </div>
+            {gallery[0] && (
+              <div className="mt-3">
+                <ViewOnWall imageUrl={gallery[0]} dimensions={a.dimensions} title={a.title} />
+              </div>
+            )}
             {gallery.length > 1 && (
               <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
                 {gallery.map((url, i) => (
@@ -206,11 +272,29 @@ function ArtworkDetailPage() {
             >
               {sold ? "Sold" : formatZmw(a.priceZmw)}
             </p>
+            {!sold && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                {a.shippingFeeZmw && Number(a.shippingFeeZmw) > 0
+                  ? `+ ${formatZmw(a.shippingFeeZmw)} delivery (free if you collect)`
+                  : "Free delivery or collection"}
+              </p>
+            )}
+            {a.sellerOnVacation && (
+              <p className="mt-4 flex gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+                <Palmtree className="h-4 w-4 shrink-0 text-amber-600" />
+                <span>
+                  {a.artistDisplayName ?? "The artist"} is away and not taking orders right now.
+                  {a.sellerVacationMessage && ` “${a.sellerVacationMessage}”`} Save it to come back
+                  later.
+                </span>
+              </p>
+            )}
 
             <div className="mt-6 flex flex-wrap gap-3">
               <Button size="lg" onClick={addToCart} disabled={unavailable || adding}>
                 {sold ? "Sold" : unavailable ? "Not available" : adding ? "Adding…" : "Add to cart"}
               </Button>
+              <OfferButton artwork={a} />
               <Button
                 size="lg"
                 variant="outline"
@@ -294,6 +378,16 @@ function ArtworkDetailPage() {
                 </p>
               </div>
             </div>
+            <div className="mt-3 flex gap-3 rounded-xl border border-border bg-card p-4 text-sm">
+              <RotateCcw className="h-5 w-5 shrink-0 text-primary" />
+              <div>
+                <p className="font-medium">Returns</p>
+                <p className="whitespace-pre-line text-muted-foreground">
+                  {a.sellerReturnPolicy ||
+                    "If it arrives damaged or isn't as described, request a refund from your order page within 14 days of delivery."}
+                </p>
+              </div>
+            </div>
             {a.tags.length > 0 && (
               <div className="mt-6 flex flex-wrap gap-2">
                 {a.tags.map((t) => (
@@ -336,6 +430,9 @@ function ArtworkDetailPage() {
                 )}
               </div>
             </Link>
+            <div className="mt-4 text-right">
+              <ReportButton targetType="ARTWORK" targetId={a.id} label="Report this listing" />
+            </div>
           </div>
         </div>
 
@@ -360,8 +457,24 @@ function ArtworkDetailPage() {
             </div>
           </section>
         )}
+        <ArtworkRow title="You may also like" artworks={related.slice(0, 8)} />
+        <ArtworkRow title="Recently viewed" artworks={recentlyViewed} />
       </div>
       <SiteFooter />
     </div>
+  );
+}
+
+function ArtworkRow({ title, artworks }: { title: string; artworks: ArtworkSummary[] }) {
+  if (artworks.length === 0) return null;
+  return (
+    <section className="mt-16">
+      <h2 className="font-display text-2xl font-semibold">{title}</h2>
+      <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
+        {artworks.map((w) => (
+          <ArtworkCard key={w.id} artwork={w} />
+        ))}
+      </div>
+    </section>
   );
 }

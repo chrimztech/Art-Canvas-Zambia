@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
-import type { ArtworkSummary, PublicSiteSettings } from "@/lib/types";
+import type { ArtworkSummary, CollectionSummary, PublicSiteSettings } from "@/lib/types";
+import { CollectionCard } from "@/components/collection-card";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,17 @@ import heroImg from "@/assets/hero-gallery.jpg";
 const featuredArtworksQuery = queryOptions({
   queryKey: ["featured-artworks"],
   queryFn: async () => (await api.get<ArtworkSummary[]>("/api/artworks")).slice(0, 9),
+});
+
+const featuredCollectionsQuery = queryOptions({
+  queryKey: ["collections", "featured"],
+  queryFn: async () => {
+    try {
+      return await api.get<CollectionSummary[]>("/api/collections?featured=true");
+    } catch {
+      return [];
+    }
+  },
 });
 
 const siteSettingsQuery = queryOptions({
@@ -45,6 +57,7 @@ export const Route = createFileRoute("/")({
     Promise.all([
       context.queryClient.ensureQueryData(featuredArtworksQuery),
       context.queryClient.ensureQueryData(siteSettingsQuery),
+      context.queryClient.ensureQueryData(featuredCollectionsQuery),
     ]),
   component: Index,
   errorComponent: ({ error }) => (
@@ -56,6 +69,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { data: artworks } = useSuspenseQuery(featuredArtworksQuery);
   const { data: siteSettings } = useSuspenseQuery(siteSettingsQuery);
+  const { data: collections } = useSuspenseQuery(featuredCollectionsQuery);
   const [feature, ...rest] = artworks;
   const coverImage = siteSettings.heroImageUrl || heroImg;
 
@@ -289,7 +303,24 @@ function Index() {
         )}
       </section>
 
+      {collections.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between">
+            <h2 className="font-display text-3xl font-semibold">Curated collections</h2>
+            <Link to="/collections" className="text-sm text-primary hover:underline">
+              All collections →
+            </Link>
+          </div>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {collections.slice(0, 3).map((c) => (
+              <CollectionCard key={c.id} collection={c} />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Sell CTA */}
+
       <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-sm border border-primary/30 bg-gradient-to-br from-card to-background px-8 py-16 sm:px-14 sm:py-24">
           <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />

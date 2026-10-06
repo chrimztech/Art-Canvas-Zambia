@@ -126,6 +126,10 @@ public class SupplyService {
         s.setWeightKg(req.weightKg());
         s.setWarrantyMonths(req.warrantyMonths());
         s.setTags(req.tags() != null ? req.tags() : List.of());
+        if (req.shippingFeeZmw() != null && req.shippingFeeZmw().signum() < 0) {
+            throw ApiException.badRequest("Delivery fee can't be negative");
+        }
+        s.setShippingFeeZmw(req.shippingFeeZmw() != null ? req.shippingFeeZmw() : java.math.BigDecimal.ZERO);
     }
 
     private SupplySummaryDto toSummary(Supply s) {
@@ -140,6 +144,7 @@ public class SupplyService {
         return new SupplyDetailDto(s.getId(), s.getSlug(), s.getName(), s.getDescription(), s.getCategory(),
                 s.getCondition(), s.getPriceZmw(), s.getStock(), s.getCoverImageUrl(), s.getStatus(), s.getSellerId(),
                 p != null ? p.getDisplayName() : null, p != null ? p.getLocation() : null, p != null ? p.getPhone() : null,
-                s.getBrand(), s.getSku(), s.getDimensions(), s.getWeightKg(), s.getWarrantyMonths(), s.getTags(), images);
+                s.getBrand(), s.getSku(), s.getDimensions(), s.getWeightKg(), s.getWarrantyMonths(), s.getTags(), images,
+                s.getShippingFeeZmw(), p != null && p.isVacationMode(), p != null && p.isVacationMode() ? p.getVacationMessage() : null);
     }
 }

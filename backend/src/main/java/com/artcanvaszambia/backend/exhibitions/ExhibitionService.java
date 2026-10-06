@@ -34,6 +34,7 @@ public class ExhibitionService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final CheckoutService checkoutService;
+    private final com.artcanvaszambia.backend.waitlist.WaitlistService waitlistService;
 
     private static final Set<String> OWNER_STATUSES = Set.of(Exhibition.DRAFT, Exhibition.PUBLISHED,
             Exhibition.CANCELLED, Exhibition.COMPLETED);
@@ -105,6 +106,7 @@ public class ExhibitionService {
         SecurityUtils.requireOwnerOrAdmin(e.getOrganizerId());
         applyRequest(e, req);
         exhibitionRepository.save(e);
+        waitlistService.placesMayHaveOpened(com.artcanvaszambia.backend.waitlist.WaitlistService.EXHIBITION, e.getId());
         return toDto(e);
     }
 

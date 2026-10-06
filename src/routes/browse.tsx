@@ -8,8 +8,10 @@ import { SiteFooter } from "@/components/site-footer";
 import { ArtworkCard } from "@/components/artwork-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Palette, Search, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { BellPlus, Palette, Search, X } from "lucide-react";
+import { toast } from "sonner";
+import { cn, errorMessage } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 
 type BrowseSearch = {
   q?: string;
@@ -18,7 +20,14 @@ type BrowseSearch = {
   max?: number;
   sort?: "newest" | "price_asc" | "price_desc" | "popular";
   available?: boolean;
+  orientation?: "landscape" | "portrait" | "square";
+  framed?: boolean;
+  readyToHang?: boolean;
+  freeDelivery?: boolean;
 };
+
+const ORIENTATIONS = ["landscape", "portrait", "square"] as const;
+const flag = (v: unknown) => (v === true || v === "true" ? true : undefined);
 
 const SORTS: { value: NonNullable<BrowseSearch["sort"]>; label: string }[] = [
   { value: "newest", label: "Newest" },
@@ -42,6 +51,10 @@ function artworksQuery(search: BrowseSearch, categories: Category[]) {
   if (search.max != null) params.set("maxPrice", String(search.max));
   if (search.sort && search.sort !== "newest") params.set("sort", search.sort);
   if (search.available) params.set("available", "true");
+  if (search.orientation) params.set("orientation", search.orientation);
+  if (search.framed) params.set("framed", "true");
+  if (search.readyToHang) params.set("readyToHang", "true");
+  if (search.freeDelivery) params.set("freeDelivery", "true");
   const qs = params.toString();
   return queryOptions({
     queryKey: ["browse-artworks", qs],
@@ -63,7 +76,11 @@ export const Route = createFileRoute("/browse")({
     sort: SORTS.some((s) => s.value === search.sort)
       ? (search.sort as BrowseSearch["sort"])
       : undefined,
-    available: search.available === true || search.available === "true" ? true : undefined,
+    available: flag(search.available),
+    orientation: ORIENTATIONS.find((o) => o === search.orientation),
+    framed: flag(search.framed),
+    readyToHang: flag(search.readyToHang),
+    freeDelivery: flag(search.freeDelivery),
   }),
   head: () => ({
     meta: [
@@ -90,6 +107,7 @@ export const Route = createFileRoute("/browse")({
 function Browse() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/browse" });
+  const { user } = useAuth();
   const { data: categories } = useSuspenseQuery(categoriesQuery);
   // The loader has already fetched this search, so suspense never shows a fallback here and
   // server and client render the same results (the query cache isn't hydrated from SSR).
@@ -112,8 +130,36 @@ function Browse() {
     search.category ||
     search.min != null ||
     search.max != null ||
-    search.available
+    search.available ||
+    search.orientation ||
+    search.framed ||
+    search.readyToHang ||
+    search.freeDelivery
   );
+
+  async function saveAlert() {
+    if (!user) {
+      navigate({
+        to: "/auth",
+        search: { redirect: window.location.pathname + window.location.search },
+      });
+      return;
+    }
+    const category = categories.find((c) => c.slug === search.category);
+    try {
+      await api.post("/api/me/saved-searches", {
+        query: search.q,
+        categoryId: category?.id,
+        minPriceZmw: search.min,
+        maxPriceZmw: search.max,
+      });
+      toast.success("Alert saved — we'll notify you when new work matches", {
+        action: { label: "Manage", onClick: () => navigate({ to: "/following" }) },
+      });
+    } catch (e) {
+      toast.error(errorMessage(e, "Could not save this search"));
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -227,6 +273,11 @@ function Browse() {
             />
             Available only
           </label>
+          {(search.q || search.category || search.min != null || search.max != null) && (
+            <Button variant="outline" size="sm" onClick={saveAlert}>
+              <BellPlus className="h-4 w-4" /> Alert me to new matches
+            </Button>
+          )}
           {activeFilters && (
             <Button
               variant="ghost"
@@ -237,6 +288,44 @@ function Browse() {
               <X className="h-4 w-4" /> Clear filters
             </Button>
           )}
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+          <select
+            value={search.orientation ?? ""}
+            onChange={(e) =>
+              update({ orientation: (e.target.value || undefined) as BrowseSearch["orientation"] })
+            }
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            aria-label="Orientation"
+          >
+            <option value="">Any orientation</option>
+            <option value="landscape">Landscape</option>
+            <option value="portrait">Portrait</option>
+            <option value="square">Square</option>
+          </select>
+          {(
+            [
+              ["framed", "Framed"],
+              ["readyToHang", "Ready to hang"],
+              ["freeDelivery", "Free delivery"],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => update({ [key]: search[key] ? undefined : true })}
+              aria-pressed={!!search[key]}
+              className={cn(
+                "rounded-full border px-3 py-1.5",
+                search[key]
+                  ? "border-primary bg-accent text-foreground"
+                  : "border-border bg-card text-muted-foreground hover:border-primary",
+              )}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {artworks.length === 0 ? (

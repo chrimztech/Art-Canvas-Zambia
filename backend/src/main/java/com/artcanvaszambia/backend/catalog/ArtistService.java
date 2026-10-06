@@ -22,6 +22,7 @@ public class ArtistService {
     private final ArtworkRepository artworkRepository;
     private final ArtworkService artworkService;
     private final com.artcanvaszambia.backend.reviews.ReviewService reviewService;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbc;
 
     public List<ArtistSummaryDto> list() {
         List<UUID> artistIds = userRoleRepository.findByRole(Role.ARTIST).stream()
@@ -44,6 +45,21 @@ public class ArtistService {
                 p.getWebsite(), p.getInstagram(), artworkService.listByArtistPublished(id),
                 p.getCoverImageUrl(), p.getFacebookUrl(), p.getTwitterUrl(), p.getTiktokUrl(),
                 p.getSpecialties(), p.getYearsExperience(), p.isVerified(),
-                rating != null ? rating.average() : 0, rating != null ? rating.count() : 0);
+                rating != null ? rating.average() : 0, rating != null ? rating.count() : 0,
+                p.getShopAnnouncement(), p.isVacationMode(), p.isVacationMode() ? p.getVacationMessage() : null,
+                p.getReturnPolicy(), followerCount(id), viewerFollows(id));
+    }
+
+    private long followerCount(UUID artistId) {
+        Long n = jdbc.queryForObject("select count(*) from follows where artist_id = ?", Long.class, artistId);
+        return n == null ? 0 : n;
+    }
+
+    private boolean viewerFollows(UUID artistId) {
+        var viewer = com.artcanvaszambia.backend.security.SecurityUtils.currentPrincipalOrNull();
+        if (viewer == null) return false;
+        Long n = jdbc.queryForObject("select count(*) from follows where artist_id = ? and follower_id = ?",
+                Long.class, artistId, viewer.getId());
+        return n != null && n > 0;
     }
 }

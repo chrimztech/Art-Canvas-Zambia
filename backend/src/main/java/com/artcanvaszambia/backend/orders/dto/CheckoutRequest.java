@@ -20,6 +20,10 @@ public record CheckoutRequest(
         String shippingCity,
         String shippingNotes,
         // Mobile network for mobile-money payments (airtel | mtn | zamtel); inferred from the number when blank.
-        String operator
+        String operator,
+        // Optional discount code (seller or platform coupon).
+        String couponCode,
+        // Optional gift card to spend against this order.
+        String giftCardCode
 ) {
 }

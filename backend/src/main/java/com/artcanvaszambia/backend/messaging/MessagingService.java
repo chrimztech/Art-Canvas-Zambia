@@ -49,6 +49,7 @@ public class MessagingService {
     private final OrderItemRepository orderItemRepository;
     private final CommissionRepository commissionRepository;
     private final NotificationService notificationService;
+    private final com.artcanvaszambia.backend.moderation.ModerationService moderationService;
 
     @Transactional
     public ConversationDetailDto start(StartConversationRequest req) {
@@ -118,6 +119,9 @@ public class MessagingService {
     }
 
     private void post(Conversation c, UUID sender, String body) {
+        if (moderationService.blockedEitherWay(sender, c.otherParticipant(sender))) {
+            throw ApiException.forbidden("You can't message this member");
+        }
         String text = body.trim();
         if (text.isEmpty()) {
             throw ApiException.badRequest("Message can't be empty");

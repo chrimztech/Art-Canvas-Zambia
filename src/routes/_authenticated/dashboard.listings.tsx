@@ -6,7 +6,8 @@ import { SiteHeader } from "@/components/site-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle2, Plus, Users } from "lucide-react";
+import { CheckCircle2, Plus, ScanLine, Users } from "lucide-react";
+import { QrScanner } from "@/components/qr-scanner";
 import { toast } from "sonner";
 import { errorMessage, formatZmw } from "@/lib/utils";
 
@@ -360,6 +361,7 @@ function Row(props: {
 
 function AttendeeList({ path, mode }: { path: string; mode: "class" | "exhibition" }) {
   const [rows, setRows] = useState<Attendee[] | null>(null);
+  const [scanning, setScanning] = useState(false);
   const load = useCallback(
     () =>
       api
@@ -383,52 +385,92 @@ function AttendeeList({ path, mode }: { path: string; mode: "class" | "exhibitio
     }
   }
 
+  const scan = useCallback(
+    async (code: string) => {
+      const id = code.trim();
+      const guest = rows?.find((r) => r.id === id);
+      if (!guest) {
+        toast.error("That ticket isn't for this event");
+        return;
+      }
+      if (guest.checkedInAt) {
+        toast.warning(`${guest.displayName ?? "Guest"} is already checked in`);
+        return;
+      }
+      try {
+        await api.post(`/api/exhibitions/tickets/${id}/check-in`);
+        toast.success(
+          `Checked in ${guest.displayName ?? "guest"} (${guest.quantity} ticket${guest.quantity === 1 ? "" : "s"})`,
+        );
+        load();
+      } catch (e) {
+        toast.error(errorMessage(e, "Could not check in"));
+      }
+    },
+    [rows, load],
+  );
+
   if (!rows) return <p className="mt-3 text-sm text-muted-foreground">Loading…</p>;
   if (rows.length === 0)
     return <p className="mt-3 text-sm text-muted-foreground">No one has signed up yet.</p>;
   return (
-    <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-      <table className="w-full min-w-[520px] text-sm">
-        <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-          <tr>
-            <th className="px-3 py-2">Name</th>
-            <th className="px-3 py-2">Email</th>
-            <th className="px-3 py-2">{mode === "class" ? "Status" : "Tickets"}</th>
-            <th className="px-3 py-2" />
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {rows.map((a) => {
-            const done = mode === "class" ? a.status === "attended" : !!a.checkedInAt;
-            const confirmed = a.status === "paid" || a.status === "attended";
-            return (
-              <tr key={a.id}>
-                <td className="px-3 py-2">{a.displayName ?? "—"}</td>
-                <td className="px-3 py-2 text-muted-foreground">{a.email ?? "—"}</td>
-                <td className="px-3 py-2 capitalize">
-                  {mode === "class"
-                    ? a.status === "paid"
-                      ? "confirmed"
-                      : a.status
-                    : `${a.quantity} · ${a.status === "paid" ? "confirmed" : a.status}`}
-                </td>
-                <td className="px-3 py-2 text-right">
-                  {done ? (
-                    <span className="inline-flex items-center gap-1 text-green-600">
-                      <CheckCircle2 className="h-4 w-4" />
-                      {mode === "class" ? "Attended" : "Checked in"}
-                    </span>
-                  ) : confirmed ? (
-                    <Button size="sm" variant="outline" onClick={() => mark(a)}>
-                      {mode === "class" ? "Mark attended" : "Check in"}
-                    </Button>
-                  ) : null}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <>
+      {mode === "exhibition" && (
+        <div className="mt-4">
+          <Button size="sm" variant="outline" onClick={() => setScanning((s) => !s)}>
+            <ScanLine className="h-4 w-4" />{" "}
+            {scanning ? "Stop scanning" : "Scan tickets at the door"}
+          </Button>
+          {scanning && (
+            <div className="mt-3">
+              <QrScanner onCode={scan} />
+            </div>
+          )}
+        </div>
+      )}
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+        <table className="w-full min-w-[520px] text-sm">
+          <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+            <tr>
+              <th className="px-3 py-2">Name</th>
+              <th className="px-3 py-2">Email</th>
+              <th className="px-3 py-2">{mode === "class" ? "Status" : "Tickets"}</th>
+              <th className="px-3 py-2" />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {rows.map((a) => {
+              const done = mode === "class" ? a.status === "attended" : !!a.checkedInAt;
+              const confirmed = a.status === "paid" || a.status === "attended";
+              return (
+                <tr key={a.id}>
+                  <td className="px-3 py-2">{a.displayName ?? "—"}</td>
+                  <td className="px-3 py-2 text-muted-foreground">{a.email ?? "—"}</td>
+                  <td className="px-3 py-2 capitalize">
+                    {mode === "class"
+                      ? a.status === "paid"
+                        ? "confirmed"
+                        : a.status
+                      : `${a.quantity} · ${a.status === "paid" ? "confirmed" : a.status}`}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {done ? (
+                      <span className="inline-flex items-center gap-1 text-green-600">
+                        <CheckCircle2 className="h-4 w-4" />
+                        {mode === "class" ? "Attended" : "Checked in"}
+                      </span>
+                    ) : confirmed ? (
+                      <Button size="sm" variant="outline" onClick={() => mark(a)}>
+                        {mode === "class" ? "Mark attended" : "Check in"}
+                      </Button>
+                    ) : null}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }

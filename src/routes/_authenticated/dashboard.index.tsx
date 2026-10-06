@@ -6,6 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  BarChart3,
+  Gift,
+  HandCoins,
+  Tag,
+  Users,
   Brush,
   CalendarDays,
   MessageCircle,
@@ -157,6 +162,24 @@ function Dashboard() {
             to="/favorites"
           />
           <Tool
+            icon={Users}
+            title="Following"
+            description="New work from artists you follow, search alerts and waitlists."
+            to="/following"
+          />
+          <Tool
+            icon={HandCoins}
+            title="Offers"
+            description="Offers you've made on artworks — accept counters and pay."
+            to="/dashboard/offers"
+          />
+          <Tool
+            icon={Gift}
+            title="Gift cards"
+            description="Buy a gift card or check the balance on yours."
+            to="/gift-cards"
+          />
+          <Tool
             icon={Brush}
             title="My commissions"
             description="Review quotes, pay and follow custom work."
@@ -240,6 +263,26 @@ function Dashboard() {
               description="Ship orders, see earnings and withdraw to mobile money or bank."
               to="/sales"
             />
+            <Tool
+              icon={BarChart3}
+              title="Shop stats"
+              description="Sales over time, views, favourites, followers and top listings."
+              to="/dashboard/stats"
+            />
+            <Tool
+              icon={Tag}
+              title="Discount codes"
+              description="Create coupon codes for your listings."
+              to="/dashboard/coupons"
+            />
+            {has("ARTIST") && (
+              <Tool
+                icon={HandCoins}
+                title="Offers received"
+                description="Accept, decline or counter offers on your artworks."
+                to="/dashboard/offers"
+              />
+            )}
           </Section>
         )}
 

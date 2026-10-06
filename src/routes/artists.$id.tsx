@@ -15,9 +15,13 @@ import {
   Globe,
   Instagram,
   MapPin,
+  Megaphone,
   Music2,
+  Palmtree,
   Twitter,
 } from "lucide-react";
+import { FollowButton } from "@/components/follow-button";
+import { ReportButton } from "@/components/report-button";
 import { MessageButton } from "@/components/message-button";
 import { SellerReviews } from "@/components/seller-reviews";
 import { RatingBadge } from "@/components/star-rating";
@@ -117,7 +121,12 @@ function ArtistProfile() {
               <RatingBadge average={profile.averageRating} count={profile.reviewCount} />
             </div>
           </div>
-          <div className="flex gap-2 sm:mb-2">
+          <div className="flex flex-wrap justify-center gap-2 sm:mb-2">
+            <FollowButton
+              artistId={profile.id}
+              following={profile.followedByMe}
+              followerCount={profile.followerCount}
+            />
             <MessageButton recipientId={profile.id} recipientName={profile.displayName} />
             <Button asChild>
               <Link
@@ -131,6 +140,21 @@ function ArtistProfile() {
           </div>
         </div>
 
+        {profile.vacationMode && (
+          <p className="mt-6 flex gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+            <Palmtree className="h-4 w-4 shrink-0 text-amber-600" />
+            <span>
+              {profile.displayName ?? "This artist"} is away and not taking orders right now.
+              {profile.vacationMessage && ` “${profile.vacationMessage}”`}
+            </span>
+          </p>
+        )}
+        {profile.shopAnnouncement && (
+          <p className="mt-6 flex gap-2 rounded-md border border-primary/30 bg-primary/10 p-3 text-sm">
+            <Megaphone className="h-4 w-4 shrink-0 text-primary" />
+            <span className="whitespace-pre-line">{profile.shopAnnouncement}</span>
+          </p>
+        )}
         <div className="mt-6 grid gap-6 lg:grid-cols-[2fr_1fr]">
           <div>
             {profile.bio && <p className="whitespace-pre-line text-foreground/90">{profile.bio}</p>}
@@ -161,6 +185,15 @@ function ArtistProfile() {
                 ))}
               </div>
             )}
+            {profile.returnPolicy && (
+              <div className="rounded-lg border border-border bg-card p-3 text-sm">
+                <p className="font-medium">Return policy</p>
+                <p className="mt-1 whitespace-pre-line text-muted-foreground">
+                  {profile.returnPolicy}
+                </p>
+              </div>
+            )}
+            <ReportButton targetType="USER" targetId={profile.id} label="Report this member" />
           </div>
         </div>
 

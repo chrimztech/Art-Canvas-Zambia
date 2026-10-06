@@ -19,6 +19,10 @@ public record ProfileUpdateRequest(
         String payoutMethod,
         String payoutPhone,
         String payoutBankName,
-        String payoutReceiverId
+        String payoutReceiverId,
+        String shopAnnouncement,
+        Boolean vacationMode,
+        String vacationMessage,
+        String returnPolicy
 ) {
 }

@@ -121,6 +121,14 @@ public class PayoutService {
                 .map(PayoutRequest.PAYEE_DEVELOPER.equals(payeeType) ? OrderItem::getRoyaltyZmw : OrderItem::getPlatformFeeZmw)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        if (PayoutRequest.PAYEE_OWNER.equals(payeeType)) {
+            BigDecimal giftCardSales = items.stream()
+                    .filter(i -> OrderItem.GIFT_CARD.equals(i.getItemType()) && i.getRefundedAt() == null)
+                    .map(OrderItem::getLineTotalZmw).reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal giftCardSpend = paidOrders.stream().map(Order::getGiftCardZmw).reduce(BigDecimal.ZERO, BigDecimal::add);
+            totalEarned = totalEarned.add(giftCardSales).subtract(giftCardSpend);
+        }
+
         BigDecimal alreadyPaidOut = payoutRequestRepository.findByPayeeTypeOrderByCreatedAtDesc(payeeType).stream()
                 .filter(p -> RESERVED_PAYOUT_STATUSES.contains(p.getStatus()))
                 .map(PayoutRequest::getAmountZmw)

@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useAuth, logout } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, ShoppingBag, User as UserIcon, LogOut } from "lucide-react";
+import { Bell, Heart, MessageCircle, ShoppingBag, User as UserIcon, LogOut } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import type { CartItem } from "@/lib/types";
@@ -34,6 +34,13 @@ export function SiteHeader() {
     refetchInterval: 60_000,
   });
   const unreadCount = unread?.count ?? 0;
+  const { data: unreadNotes } = useQuery({
+    queryKey: ["unread-notifications"],
+    queryFn: () => api.get<{ count: number }>("/api/me/notifications/unread-count"),
+    enabled: !!user,
+    refetchInterval: 60_000,
+  });
+  const noteCount = unreadNotes?.count ?? 0;
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -97,6 +104,21 @@ export function SiteHeader() {
                   {unreadCount > 0 && (
                     <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[0.65rem] font-semibold text-primary-foreground">
                       {unreadCount}
+                    </span>
+                  )}
+                </Link>
+              </Button>
+            )}
+            {user && (
+              <Button variant="ghost" size="icon" asChild className="relative">
+                <Link
+                  to="/notifications"
+                  aria-label={noteCount ? `Notifications, ${noteCount} unread` : "Notifications"}
+                >
+                  <Bell className="h-5 w-5" />
+                  {noteCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[0.65rem] font-semibold text-primary-foreground">
+                      {noteCount > 99 ? "99+" : noteCount}
                     </span>
                   )}
                 </Link>

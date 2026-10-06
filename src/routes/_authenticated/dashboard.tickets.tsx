@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import type { Ticket } from "@/lib/types";
+import { AddToCalendar } from "@/components/add-to-calendar";
 import { SiteHeader } from "@/components/site-header";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Ticket as TicketIcon } from "lucide-react";
@@ -89,8 +90,22 @@ function MyTickets() {
                   </div>
                 </div>
                 {t.status === "paid" && t.qrCode && (
-                  <div className="shrink-0 rounded-lg border border-border bg-white p-2">
-                    <img src={t.qrCode} alt="Ticket QR code" className="h-24 w-24" />
+                  <div className="flex shrink-0 flex-col items-center gap-2">
+                    <div className="rounded-lg border border-border bg-white p-2">
+                      <img src={t.qrCode} alt="Ticket QR code" className="h-24 w-24" />
+                    </div>
+                    <p className="max-w-[9rem] break-all text-center font-mono text-[0.6rem] text-muted-foreground">
+                      {t.id}
+                    </p>
+                    {t.startsAt && t.endsAt && new Date(t.endsAt).getTime() > Date.now() && (
+                      <AddToCalendar
+                        event={{
+                          title: t.exhibitionTitle ?? "Exhibition",
+                          startsAt: t.startsAt,
+                          endsAt: t.endsAt,
+                        }}
+                      />
+                    )}
                   </div>
                 )}
               </div>

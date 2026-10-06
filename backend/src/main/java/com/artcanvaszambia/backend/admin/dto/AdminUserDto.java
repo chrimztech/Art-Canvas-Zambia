@@ -10,6 +10,7 @@ public record AdminUserDto(
         String email,
         Instant createdAt,
         List<String> roles,
-        boolean verified
+        boolean verified,
+        Instant verificationRequestedAt
 ) {
 }

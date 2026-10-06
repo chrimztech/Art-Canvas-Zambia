@@ -59,6 +59,11 @@ export type ArtworkDetail = {
   categoryName: string | null;
   artistLocation: string | null;
   artistVerified: boolean;
+  shippingFeeZmw: number | null;
+  acceptsOffers: boolean;
+  sellerOnVacation: boolean;
+  sellerVacationMessage: string | null;
+  sellerReturnPolicy: string | null;
 };
 
 export type ArtistSummary = {
@@ -91,6 +96,12 @@ export type ArtistDetail = {
   verified: boolean;
   averageRating: number;
   reviewCount: number;
+  shopAnnouncement: string | null;
+  vacationMode: boolean;
+  vacationMessage: string | null;
+  returnPolicy: string | null;
+  followerCount: number;
+  followedByMe: boolean;
 };
 
 export type Profile = {
@@ -113,6 +124,11 @@ export type Profile = {
   payoutPhone: string | null;
   payoutBankName: string | null;
   payoutReceiverId: string | null;
+  shopAnnouncement: string | null;
+  vacationMode: boolean;
+  vacationMessage: string | null;
+  returnPolicy: string | null;
+  verificationRequestedAt: string | null;
 };
 
 export type CartItem = {
@@ -146,6 +162,8 @@ export type CheckoutRequest = {
   shippingCity?: string;
   shippingNotes?: string;
   operator?: "airtel" | "mtn" | "zamtel";
+  couponCode?: string;
+  giftCardCode?: string;
 };
 
 export type ShippingAddress = {
@@ -163,7 +181,7 @@ export type CheckoutResponse = {
   orderId: string;
   orderNumber: string;
   total: number;
-  paymentMethod: "card" | "momo";
+  paymentMethod: "card" | "momo" | "gift_card";
   redirectUrl: string | null;
   message: string | null;
   widget: LencoWidgetConfig | null;
@@ -196,7 +214,7 @@ export type OrderSummary = {
 export type OrderItem = {
   id: string;
   artworkId: string | null;
-  itemType: "ARTWORK" | "SUPPLY" | "CLASS" | "EXHIBITION" | "COMMISSION";
+  itemType: "ARTWORK" | "SUPPLY" | "CLASS" | "EXHIBITION" | "COMMISSION" | "GIFT_CARD";
   referenceId: string | null;
   title: string;
   unitPriceZmw: number;
@@ -216,6 +234,8 @@ export type OrderItem = {
   myRating: number | null;
   refundStatus: "requested" | "refunded" | "rejected" | null;
   refunded: boolean;
+  discountZmw: number;
+  shippingZmw: number;
 };
 
 export type OrderDetail = {
@@ -231,6 +251,10 @@ export type OrderDetail = {
   createdAt: string;
   items: OrderItem[];
   shippingAddress: ShippingAddress | null;
+  discountZmw: number;
+  shippingZmw: number;
+  giftCardZmw: number;
+  couponCode: string | null;
 };
 
 export type Sale = {
@@ -308,6 +332,9 @@ export type SupplyDetail = {
   warrantyMonths: number | null;
   tags: string[];
   images: string[];
+  shippingFeeZmw: number | null;
+  sellerOnVacation: boolean;
+  sellerVacationMessage: string | null;
 };
 
 export type ClassItem = {
@@ -411,6 +438,7 @@ export type AdminUser = {
   createdAt: string;
   roles: string[];
   verified: boolean;
+  verificationRequestedAt: string | null;
 };
 
 export type PermissionInfo = { name: string; description: string };
@@ -633,4 +661,221 @@ export type RefundRequest = {
   buyerPhone: string | null;
   createdAt: string;
   resolvedAt: string | null;
+};
+
+export type CheckoutQuoteLine = {
+  itemType: string;
+  referenceId: string;
+  title: string;
+  quantity: number;
+  lineTotalZmw: number;
+  discountZmw: number;
+  shippingZmw: number;
+};
+
+export type CheckoutQuote = {
+  lines: CheckoutQuoteLine[];
+  subtotalZmw: number;
+  discountZmw: number;
+  shippingZmw: number;
+  giftCardZmw: number;
+  totalZmw: number;
+  couponCode: string | null;
+  couponMessage: string | null;
+  giftCardCode: string | null;
+  giftCardBalanceZmw: number | null;
+  giftCardMessage: string | null;
+};
+
+export type OfferStatus =
+  | "pending"
+  | "countered"
+  | "accepted"
+  | "declined"
+  | "withdrawn"
+  | "expired"
+  | "purchased";
+
+export type Offer = {
+  id: string;
+  artworkId: string;
+  artworkTitle: string | null;
+  artworkSlug: string | null;
+  artworkCoverUrl: string | null;
+  listPriceZmw: number;
+  buyerId: string;
+  buyerName: string | null;
+  artistId: string;
+  artistName: string | null;
+  amountZmw: number;
+  counterAmountZmw: number | null;
+  message: string | null;
+  status: OfferStatus;
+  expiresAt: string;
+  createdAt: string;
+};
+
+export type Coupon = {
+  id: string;
+  code: string;
+  platform: boolean;
+  percentOff: number | null;
+  amountOffZmw: number | null;
+  minOrderZmw: number | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  maxRedemptions: number | null;
+  redemptions: number;
+  active: boolean;
+  status: string;
+  createdAt: string;
+};
+
+export type GiftCard = {
+  id: string;
+  code: string | null;
+  initialAmountZmw: number;
+  balanceZmw: number;
+  recipientEmail: string | null;
+  recipientName: string | null;
+  status: "pending" | "active" | "disabled";
+  createdAt: string;
+};
+
+export type AppNotification = {
+  id: string;
+  title: string;
+  body: string | null;
+  link: string | null;
+  readAt: string | null;
+  createdAt: string;
+};
+
+export type FollowedArtist = {
+  id: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  location: string | null;
+  followedAt: string;
+};
+
+export type SavedSearch = {
+  id: string;
+  name: string;
+  query: string | null;
+  categoryId: string | null;
+  minPriceZmw: number | null;
+  maxPriceZmw: number | null;
+  createdAt: string;
+};
+
+export type WaitlistEntry = {
+  id: string;
+  itemType: "CLASS" | "EXHIBITION";
+  itemId: string;
+  title: string | null;
+  path: string | null;
+  notifiedAt: string | null;
+  createdAt: string;
+};
+
+export type CollectionSummary = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  coverImageUrl: string | null;
+  featured: boolean;
+  published: boolean;
+  sortOrder: number;
+  artworkCount: number;
+  previewImages: string[];
+  createdAt: string;
+};
+
+export type CollectionDetail = {
+  collection: CollectionSummary;
+  artworks: ArtworkSummary[];
+  artworkIds: string[];
+};
+
+export type ReportTarget =
+  | "ARTWORK"
+  | "SUPPLY"
+  | "CLASS"
+  | "EXHIBITION"
+  | "USER"
+  | "REVIEW"
+  | "MESSAGE";
+
+export type ModerationReport = {
+  id: string;
+  targetType: ReportTarget;
+  targetId: string;
+  targetLabel: string | null;
+  targetPath: string | null;
+  reason: string;
+  details: string | null;
+  status: "open" | "resolved" | "dismissed";
+  adminNote: string | null;
+  reporterId: string | null;
+  reporterName: string | null;
+  createdAt: string;
+  resolvedAt: string | null;
+};
+
+export type BlockedUser = { id: string; displayName: string | null; avatarUrl: string | null };
+
+export type ContactMessage = {
+  id: string;
+  name: string;
+  email: string;
+  topic: string;
+  message: string;
+  budgetZmw: number | null;
+  status: "new" | "handled";
+  createdAt: string;
+};
+
+export type NewsletterSubscriber = { email: string; createdAt: string };
+
+export type SellerStats = {
+  grossZmw: number;
+  earningsZmw: number;
+  itemsSold: number;
+  orders: number;
+  totalViews: number;
+  totalFavorites: number;
+  followers: number;
+  averageRating: number;
+  reviewCount: number;
+  activeListings: number;
+  averageOrderZmw: number;
+  monthly: { month: string; grossZmw: number; earningsZmw: number; itemsSold: number }[];
+  topArtworks: {
+    id: string;
+    title: string;
+    slug: string;
+    status: string;
+    views: number;
+    favorites: number;
+    priceZmw: number;
+  }[];
+};
+
+export type Certificate = {
+  certificateNumber: string;
+  title: string;
+  artistName: string | null;
+  yearCreated: number | null;
+  medium: string | null;
+  dimensions: string | null;
+  edition: string | null;
+  signed: boolean;
+  signatureLocation: string | null;
+  imageUrl: string | null;
+  ownerName: string | null;
+  purchasedAt: string;
+  orderNumber: string;
+  provenance: string | null;
 };

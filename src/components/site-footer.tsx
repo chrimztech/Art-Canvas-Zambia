@@ -1,12 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, MapPin, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NewsletterForm } from "@/components/newsletter-form";
 
 const FOOTER_LINKS = {
   discover: [
     { to: "/browse" as const, label: "Browse art" },
     { to: "/artists" as const, label: "Artists" },
     { to: "/exhibitions" as const, label: "Exhibitions" },
+    { to: "/collections" as const, label: "Curated collections" },
+    { to: "/gift-cards" as const, label: "Gift cards" },
   ],
   create: [
     { to: "/sell" as const, label: "Sell on ChrisEpic Arts" },
@@ -16,6 +19,7 @@ const FOOTER_LINKS = {
   support: [
     { to: "/about" as const, label: "About" },
     { to: "/contact" as const, label: "Contact" },
+    { to: "/contact" as const, label: "Art advisory", search: { topic: "advisory" } },
     { to: "/help" as const, label: "Help center" },
     { to: "/terms" as const, label: "Terms" },
     { to: "/privacy" as const, label: "Privacy" },
@@ -62,6 +66,14 @@ export function SiteFooter() {
                   Artist-first payouts
                 </span>
               </div>
+              <div className="mt-8">
+                <p className="text-sm font-medium text-foreground">
+                  New work and events, once a fortnight
+                </p>
+                <div className="mt-2">
+                  <NewsletterForm />
+                </div>
+              </div>
             </div>
 
             <div>
@@ -101,7 +113,11 @@ export function SiteFooter() {
               <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
                 {FOOTER_LINKS.support.map((link) => (
                   <li key={link.label}>
-                    <Link to={link.to} className="transition-colors hover:text-primary">
+                    <Link
+                      to={link.to}
+                      search={"search" in link ? link.search : undefined}
+                      className="transition-colors hover:text-primary"
+                    >
                       {link.label}
                     </Link>
                   </li>

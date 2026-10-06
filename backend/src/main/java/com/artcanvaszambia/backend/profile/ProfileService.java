@@ -15,6 +15,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProfileService {
     private final ProfileRepository profileRepository;
+    private final com.artcanvaszambia.backend.notifications.NotificationService notificationService;
 
     public PublicProfileDto getPublic(UUID id) {
         return profileRepository.findById(id).map(PublicProfileDto::from)
@@ -57,6 +58,28 @@ public class ProfileService {
         profile.setPayoutPhone(req.payoutPhone());
         profile.setPayoutBankName(req.payoutBankName());
         profile.setPayoutReceiverId(req.payoutReceiverId());
+        profile.setShopAnnouncement(blankToNull(req.shopAnnouncement()));
+        profile.setVacationMode(Boolean.TRUE.equals(req.vacationMode()));
+        profile.setVacationMessage(blankToNull(req.vacationMessage()));
+        profile.setReturnPolicy(blankToNull(req.returnPolicy()));
         return ProfileDto.from(profileRepository.save(profile));
+    }
+
+    /** Asks the admins to review the account for a verified badge. */
+    @Transactional
+    public ProfileDto requestVerification() {
+        Profile profile = profileRepository.findById(SecurityUtils.currentUserId())
+                .orElseThrow(() -> ApiException.notFound("Profile not found"));
+        if (profile.isVerified()) throw ApiException.badRequest("Your account is already verified");
+        if (profile.getVerificationRequestedAt() != null) throw ApiException.conflict("Your request is already with our team");
+        profile.setVerificationRequestedAt(java.time.Instant.now());
+        profileRepository.save(profile);
+        notificationService.adminAlert("Verification requested: " + profile.getDisplayName(), java.util.List.of(
+                profile.getDisplayName() + " asked to be verified. Review their profile and work, then verify them from Users."), "/admin");
+        return ProfileDto.from(profile);
+    }
+
+    private static String blankToNull(String s) {
+        return s == null || s.isBlank() ? null : s.trim();
     }
 }

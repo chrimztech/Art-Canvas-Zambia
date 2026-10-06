@@ -24,13 +24,20 @@ public record ProfileDto(
         String payoutMethod,
         String payoutPhone,
         String payoutBankName,
-        String payoutReceiverId
+        String payoutReceiverId,
+        String shopAnnouncement,
+        boolean vacationMode,
+        String vacationMessage,
+        String returnPolicy,
+        java.time.Instant verificationRequestedAt
 ) {
     public static ProfileDto from(Profile p) {
         return new ProfileDto(p.getId(), p.getDisplayName(), p.getBio(), p.getAvatarUrl(),
                 p.getLocation(), p.getWebsite(), p.getInstagram(), p.getPhone(),
                 p.getCoverImageUrl(), p.getFacebookUrl(), p.getTwitterUrl(), p.getTiktokUrl(),
                 p.getSpecialties(), p.getYearsExperience(), p.isVerified(),
-                p.getPayoutMethod(), p.getPayoutPhone(), p.getPayoutBankName(), p.getPayoutReceiverId());
+                p.getPayoutMethod(), p.getPayoutPhone(), p.getPayoutBankName(), p.getPayoutReceiverId(),
+                p.getShopAnnouncement(), p.isVacationMode(), p.getVacationMessage(), p.getReturnPolicy(),
+                p.getVerificationRequestedAt());
     }
 }

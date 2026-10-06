@@ -20,6 +20,12 @@ public record ArtistDetailDto(
         Integer yearsExperience,
         boolean verified,
         double averageRating,
-        long reviewCount
+        long reviewCount,
+        String shopAnnouncement,
+        boolean vacationMode,
+        String vacationMessage,
+        String returnPolicy,
+        long followerCount,
+        boolean followedByMe
 ) {
 }

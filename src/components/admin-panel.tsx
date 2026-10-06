@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { AdminRefunds } from "@/components/admin-refunds";
 import { AdminReviews } from "@/components/admin-reviews";
+import { AdminCollections, AdminInbox, AdminReports } from "@/components/admin-marketplace";
+import { CouponManager } from "@/components/coupon-manager";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import type {
@@ -317,6 +319,16 @@ export function AdminPanel() {
     }
   }
 
+  async function setVerified(userId: string, verified: boolean) {
+    try {
+      await api.patch(`/api/admin/users/${userId}/verify`, { verified });
+      toast.success(verified ? "Verified badge granted" : "Verification removed");
+      await load();
+    } catch (error) {
+      toast.error(errorMessage(error, "Could not update verification"));
+    }
+  }
+
   async function deleteUser(userId: string, displayName: string | null) {
     if (
       !window.confirm(`Delete the account "${displayName ?? "this user"}"? This can't be undone.`)
@@ -548,6 +560,10 @@ export function AdminPanel() {
               </TabsTrigger>
               <TabsTrigger value="refunds">Refunds</TabsTrigger>
               <TabsTrigger value="reviews">Reviews</TabsTrigger>
+              <TabsTrigger value="reports">Reports</TabsTrigger>
+              <TabsTrigger value="collections">Collections</TabsTrigger>
+              <TabsTrigger value="coupons">Coupons</TabsTrigger>
+              <TabsTrigger value="inbox">Inbox</TabsTrigger>
               <TabsTrigger value="sessions">
                 <Fingerprint className="mr-1.5 h-4 w-4" />
                 Sessions
@@ -801,9 +817,26 @@ export function AdminPanel() {
                                   {role.toLowerCase()}
                                 </Badge>
                               ))}
+                              {user.verified && <Badge className="text-xs">verified</Badge>}
+                              {!user.verified && user.verificationRequestedAt && (
+                                <Badge
+                                  variant="outline"
+                                  className="border-primary text-xs text-primary"
+                                >
+                                  verification requested{" "}
+                                  {new Date(user.verificationRequestedAt).toLocaleDateString()}
+                                </Badge>
+                              )}
                             </div>
                           </div>
                           <div className="flex flex-wrap gap-2">
+                            <Button
+                              size="sm"
+                              variant={user.verified ? "default" : "outline"}
+                              onClick={() => void setVerified(user.id, !user.verified)}
+                            >
+                              {user.verified ? "Verified" : "Verify"}
+                            </Button>
                             <Button
                               size="sm"
                               variant={userRoles.includes("ARTIST") ? "default" : "outline"}
@@ -1644,6 +1677,33 @@ export function AdminPanel() {
 
             <TabsContent value="reviews" className="mt-6">
               <AdminReviews />
+            </TabsContent>
+
+            <TabsContent value="reports" className="mt-6">
+              <AdminReports />
+            </TabsContent>
+
+            <TabsContent value="collections" className="mt-6">
+              <AdminCollections />
+            </TabsContent>
+
+            <TabsContent value="coupons" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Platform discount codes</CardTitle>
+                  <CardDescription>
+                    Site-wide codes apply to every seller's items. The discount comes out of the
+                    platform's share, never the seller's payout.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CouponManager basePath="/api/admin/coupons" canDelete={false} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="inbox" className="mt-6">
+              <AdminInbox />
             </TabsContent>
 
             <TabsContent value="audit" className="mt-6">

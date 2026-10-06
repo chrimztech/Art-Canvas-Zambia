@@ -140,6 +140,11 @@ public class SocialService {
 
     // ---------- fan-out
 
+    @org.springframework.context.event.EventListener
+    public void onArtworkPublished(com.artcanvaszambia.backend.catalog.ArtworkPublishedEvent event) {
+        artworkRepository.findById(event.artworkId()).ifPresent(this::announceIfNew);
+    }
+
     /**
      * Tells followers and matching saved searches about a newly published artwork, once per artwork
      * (re-publishing after a draft round-trip doesn't re-notify).

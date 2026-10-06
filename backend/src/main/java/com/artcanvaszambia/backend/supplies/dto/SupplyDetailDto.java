@@ -25,6 +25,9 @@ public record SupplyDetailDto(
         BigDecimal weightKg,
         Integer warrantyMonths,
         List<String> tags,
-        List<String> images
+        List<String> images,
+        BigDecimal shippingFeeZmw,
+        boolean sellerOnVacation,
+        String sellerVacationMessage
 ) {
 }

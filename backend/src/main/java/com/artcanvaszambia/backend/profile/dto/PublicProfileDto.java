@@ -20,11 +20,16 @@ public record PublicProfileDto(
         String tiktokUrl,
         List<String> specialties,
         Integer yearsExperience,
-        boolean verified
+        boolean verified,
+        String shopAnnouncement,
+        boolean vacationMode,
+        String vacationMessage,
+        String returnPolicy
 ) {
     public static PublicProfileDto from(Profile p) {
         return new PublicProfileDto(p.getId(), p.getDisplayName(), p.getBio(), p.getAvatarUrl(),
                 p.getLocation(), p.getWebsite(), p.getInstagram(), p.getCoverImageUrl(), p.getFacebookUrl(),
-                p.getTwitterUrl(), p.getTiktokUrl(), p.getSpecialties(), p.getYearsExperience(), p.isVerified());
+                p.getTwitterUrl(), p.getTiktokUrl(), p.getSpecialties(), p.getYearsExperience(), p.isVerified(),
+                p.getShopAnnouncement(), p.isVacationMode(), p.getVacationMessage(), p.getReturnPolicy());
     }
 }

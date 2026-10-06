@@ -38,6 +38,7 @@ public class OrderService {
     private final OrderFulfillmentService orderFulfillmentService;
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final com.artcanvaszambia.backend.catalog.ArtworkRepository artworkRepository;
     private final com.artcanvaszambia.backend.notifications.NotificationService notificationService;
     private final com.artcanvaszambia.backend.reviews.ReviewService reviewService;
     private final com.artcanvaszambia.backend.refunds.RefundRequestRepository refundRequestRepository;
@@ -72,12 +73,13 @@ public class OrderService {
                             i.getArtistPayoutZmw(), i.getSellerId(), seller != null ? seller.getDisplayName() : null,
                             i.getFulfillmentStatus(), i.getCarrier(), i.getTrackingNumber(), i.getShippedAt(),
                             i.getDeliveredAt(), i.isPhysical(), ratings.get(i.getId()), refundStatus.get(i.getId()),
-                            i.getRefundedAt() != null);
+                            i.getRefundedAt() != null, i.getDiscountZmw(), i.getShippingZmw());
                 })
                 .toList();
         return new OrderDetailDto(o.getId(), o.getOrderNumber(), o.getStatus(), o.getSubtotalZmw(),
                 o.getPlatformFeeZmw(), o.getRoyaltyZmw(), o.getTotalZmw(), o.getPaymentProvider(),
-                o.getPaymentReference(), o.getCreatedAt(), itemDtos, o.getShippingAddress());
+                o.getPaymentReference(), o.getCreatedAt(), itemDtos, o.getShippingAddress(),
+                o.getDiscountZmw(), o.getShippingZmw(), o.getGiftCardZmw(), o.getCouponCode());
     }
 
     @Transactional
@@ -182,6 +184,32 @@ public class OrderService {
             orderRepository.save(order);
         }
         return get(orderId);
+    }
+
+    public record CertificateDto(String certificateNumber, String title, String artistName, Integer yearCreated, String medium,
+                                 String dimensions, String edition, boolean signed, String signatureLocation, String imageUrl,
+                                 String ownerName, java.time.Instant purchasedAt, String orderNumber, String provenance) {
+    }
+
+    /** Certificate of authenticity for an artwork the buyer owns (paid, not refunded). */
+    public CertificateDto certificate(UUID orderId, UUID itemId) {
+        Order o = orderRepository.findById(orderId).orElseThrow(() -> ApiException.notFound("Order not found"));
+        SecurityUtils.requireOwnerOrAdmin(o.getBuyerId());
+        OrderItem i = orderItemRepository.findById(itemId).filter(x -> x.getOrderId().equals(orderId))
+                .orElseThrow(() -> ApiException.notFound("Order item not found"));
+        if (!OrderItem.ARTWORK.equals(i.getItemType())) throw ApiException.badRequest("Certificates are issued for artworks");
+        if (!(Order.PAID.equals(o.getStatus()) || Order.FULFILLED.equals(o.getStatus())) || i.getRefundedAt() != null) {
+            throw ApiException.badRequest("A certificate is available once the artwork is paid for");
+        }
+        var a = artworkRepository.findById(i.getReferenceId()).orElse(null);
+        String artist = i.getSellerId() == null ? null : profileRepository.findById(i.getSellerId()).map(Profile::getDisplayName).orElse(null);
+        String owner = profileRepository.findById(o.getBuyerId()).map(Profile::getDisplayName).orElse(null);
+        String number = "COA-" + o.getOrderNumber().replace("ORD-", "") + "-" + i.getId().toString().substring(0, 4).toUpperCase();
+        String edition = a == null ? null : a.isOriginal() ? "One-of-a-kind original"
+                : a.getEditionSize() != null ? "Limited edition of " + a.getEditionSize() : "Print";
+        return new CertificateDto(number, i.getTitle(), artist, a != null ? a.getYearCreated() : null, a != null ? a.getMedium() : null,
+                a != null ? a.getDimensions() : null, edition, a != null && a.isSigned(), a != null ? a.getSignatureLocation() : null,
+                a != null ? a.getCoverImageUrl() : null, owner, o.getUpdatedAt(), o.getOrderNumber(), a != null ? a.getProvenance() : null);
     }
 
     private String blankToNull(String value) {

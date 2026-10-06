@@ -24,6 +24,7 @@ public record SupplyRequest(
         // Optional gallery images (cover excluded); when non-null they replace the existing gallery.
         List<String> imageUrls,
         // Optional "draft" or "published" (defaults to published on create).
-        String status
+        String status,
+        BigDecimal shippingFeeZmw
 ) {
 }

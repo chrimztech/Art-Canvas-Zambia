@@ -45,6 +45,7 @@ function SupplyForm() {
     weightKg: "",
     warrantyMonths: "",
     tags: "",
+    shippingFeeZmw: "",
   });
 
   useEffect(() => {
@@ -68,6 +69,7 @@ function SupplyForm() {
           weightKg: s.weightKg != null ? String(s.weightKg) : "",
           warrantyMonths: s.warrantyMonths != null ? String(s.warrantyMonths) : "",
           tags: s.tags.join(", "),
+          shippingFeeZmw: s.shippingFeeZmw != null ? String(s.shippingFeeZmw) : "",
         });
       })
       .catch((e) => toast.error(errorMessage(e, "Could not load listing")))
@@ -98,6 +100,7 @@ function SupplyForm() {
       weightKg: form.weightKg ? Number(form.weightKg) : null,
       warrantyMonths: form.warrantyMonths ? Number(form.warrantyMonths) : null,
       tags: splitTags(form.tags),
+      shippingFeeZmw: form.shippingFeeZmw ? Number(form.shippingFeeZmw) : null,
     };
     try {
       const saved = id
@@ -233,7 +236,19 @@ function SupplyForm() {
               />
             </div>
             <div>
+              <Label htmlFor="shipfee">Delivery fee (K)</Label>
+              <Input
+                id="shipfee"
+                type="number"
+                min={0}
+                value={form.shippingFeeZmw}
+                onChange={set("shippingFeeZmw")}
+                placeholder="0 = free"
+              />
+            </div>
+            <div>
               <Label htmlFor="warranty">Warranty (months)</Label>
+
               <Input
                 id="warranty"
                 type="number"

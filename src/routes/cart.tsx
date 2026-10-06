@@ -1,12 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { api } from "@/lib/api-client";
-import type { CartItem, CheckoutRequest, CheckoutResponse } from "@/lib/types";
+import type { CartItem, CheckoutQuote, CheckoutRequest, CheckoutResponse } from "@/lib/types";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
-import { CheckoutForm } from "@/components/checkout-form";
+import { CheckoutForm, type CheckoutDraft } from "@/components/checkout-form";
+import { PriceSummary } from "@/components/price-summary";
 import { useAuth } from "@/hooks/use-auth";
 import { AlertTriangle, Minus, Palette, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -29,12 +30,26 @@ function Cart() {
     enabled: !!user,
   });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["cart"] });
+  const [draft, setDraft] = useState<CheckoutDraft>({ deliveryMethod: "delivery" });
+  const onDraftChange = useCallback((d: CheckoutDraft) => setDraft(d), []);
+  const cartKey = items.map((i) => `${i.id}:${i.quantity}:${i.available}`).join(",");
+  const { data: quote, isFetching: quoting } = useQuery({
+    queryKey: ["cart-quote", cartKey, draft],
+    queryFn: () => api.post<CheckoutQuote>("/api/checkout/quote", draft),
+    enabled: !!user && items.length > 0 && items.every((i) => i.available),
+    placeholderData: (prev) => prev,
+  });
 
   async function pay(req: CheckoutRequest) {
     setPaying(true);
     try {
       const res = await api.post<CheckoutResponse>("/api/checkout", req);
       refresh();
+      if (res.paymentMethod === "gift_card") {
+        toast.success("Paid with your gift card");
+        navigate({ to: "/orders/$orderId", params: { orderId: res.orderId } });
+        return;
+      }
       const message = await continuePayment(res);
       if (message === null) return; // leaving for the gateway's hosted page
       toast.success(res.widget ? message : (res.message ?? "Payment started"));
@@ -187,11 +202,12 @@ function Cart() {
 
             <div className="mt-6 flex items-center justify-between rounded-xl border border-border bg-card p-4">
               <div>
-                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-sm text-muted-foreground">Items</p>
                 <p className="font-display text-2xl font-semibold">{formatZmw(total)}</p>
               </div>
               <p className="max-w-xs text-right text-xs text-muted-foreground">
-                No extra buyer fees. Delivery costs, if any, are arranged with the seller.
+                No extra buyer fees. Sellers' delivery charges, discount codes and gift cards are
+                applied below.
               </p>
             </div>
 
@@ -208,8 +224,16 @@ function Cart() {
                 <CheckoutForm
                   busy={paying}
                   onSubmit={pay}
-                  submitLabel={`Pay ${formatZmw(total)}`}
+                  submitLabel={
+                    quote && Number(quote.totalZmw) === 0
+                      ? "Place order"
+                      : `Pay ${formatZmw(quote?.totalZmw ?? total)}`
+                  }
                   requireShipping
+                  codes
+                  onDraftChange={onDraftChange}
+                  nothingToPay={!!quote && Number(quote.totalZmw) === 0}
+                  summary={<PriceSummary quote={quote} loading={quoting} />}
                 />
               )}
             </div>

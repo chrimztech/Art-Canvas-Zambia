@@ -11,6 +11,8 @@ import { Minus, Package, Plus, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { cn, errorMessage, formatZmw } from "@/lib/utils";
 import { MessageButton } from "@/components/message-button";
+import { ReportButton } from "@/components/report-button";
+
 import { RatingBadge } from "@/components/star-rating";
 import { useSellerReviews } from "@/hooks/use-seller-reviews";
 
@@ -142,7 +144,17 @@ function SupplyDetailPage() {
               )}
             >
               {s.stock > 0 ? `${s.stock} in stock` : "Out of stock"}
+              {" · "}
+              {s.shippingFeeZmw && Number(s.shippingFeeZmw) > 0
+                ? `${formatZmw(s.shippingFeeZmw)} delivery`
+                : "free delivery or collection"}
             </p>
+            {s.sellerOnVacation && (
+              <p className="mt-4 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+                {s.sellerDisplayName ?? "The seller"} is away and not taking orders right now.
+                {s.sellerVacationMessage && ` “${s.sellerVacationMessage}”`}
+              </p>
+            )}
             {s.description && (
               <p className="mt-6 whitespace-pre-line text-foreground/90">{s.description}</p>
             )}
@@ -215,13 +227,16 @@ function SupplyDetailPage() {
               size="lg"
               className="mt-4 w-full"
               onClick={addToCart}
-              disabled={s.stock <= 0 || s.status !== "published"}
+              disabled={s.stock <= 0 || s.status !== "published" || s.sellerOnVacation}
             >
               <ShoppingCart className="h-4 w-4" />
               {s.stock > 0
                 ? `Add to cart · ${formatZmw(Number(s.priceZmw) * quantity)}`
                 : "Out of stock"}
             </Button>
+            <div className="mt-4 text-right">
+              <ReportButton targetType="SUPPLY" targetId={s.id} label="Report this listing" />
+            </div>
           </div>
         </div>
       </div>

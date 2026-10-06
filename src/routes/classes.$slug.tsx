@@ -13,6 +13,9 @@ import { continuePayment } from "@/lib/payments";
 import { errorMessage, formatZmw } from "@/lib/utils";
 import { MessageButton } from "@/components/message-button";
 import { SellerReviews } from "@/components/seller-reviews";
+import { AddToCalendar } from "@/components/add-to-calendar";
+import { ReportButton } from "@/components/report-button";
+import { WaitlistButton } from "@/components/waitlist-button";
 
 export const Route = createFileRoute("/classes/$slug")({
   head: () => ({ meta: [{ title: "Class — ChrisEpic Arts" }] }),
@@ -200,6 +203,17 @@ function ClassDetail() {
             label="Ask the instructor"
             size="sm"
           />
+          {!ended && (
+            <AddToCalendar
+              event={{
+                title: cls.title,
+                startsAt: cls.startsAt,
+                endsAt: cls.endsAt,
+                location: cls.mode === "online" ? "Online" : cls.location,
+                description: cls.description,
+              }}
+            />
+          )}
         </div>
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-card p-4">
@@ -229,7 +243,10 @@ function ClassDetail() {
               {ended ? "This class has ended." : "Enrollment is closed."}
             </span>
           ) : seatsLeft === 0 ? (
-            <span className="text-sm text-muted-foreground">Fully booked</span>
+            <div className="w-full space-y-2 sm:w-64">
+              <p className="text-sm text-muted-foreground">Fully booked</p>
+              <WaitlistButton itemType="CLASS" itemId={cls.id} />
+            </div>
           ) : free ? (
             <Button size="lg" onClick={enrollFree} disabled={busy}>
               {busy ? "Enrolling…" : "Enroll for free"}
@@ -242,9 +259,17 @@ function ClassDetail() {
               busy={busy}
               onSubmit={checkout}
               submitLabel={`Enroll & pay ${formatZmw(cls.priceZmw)}`}
+              codes
             />
+            <p className="mt-2 text-xs text-muted-foreground">
+              Discount codes and gift cards are deducted from the amount charged.
+            </p>
           </div>
         )}
+        <div className="mt-4 text-right">
+          <ReportButton targetType="CLASS" targetId={cls.id} label="Report this class" />
+        </div>
+
         <div className="mt-12">
           <SellerReviews
             sellerId={cls.instructorId}

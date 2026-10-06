@@ -18,6 +18,10 @@ public record OrderDetailDto(
         String paymentReference,
         Instant createdAt,
         List<OrderItemDto> items,
-        Map<String, String> shippingAddress
+        Map<String, String> shippingAddress,
+        BigDecimal discountZmw,
+        BigDecimal shippingZmw,
+        BigDecimal giftCardZmw,
+        String couponCode
 ) {
 }
