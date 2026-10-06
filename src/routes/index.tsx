@@ -79,7 +79,7 @@ function Index() {
 
       {/* Editorial hero */}
       <section className="relative">
-        <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        <div className="page-container pt-10">
           <div className="flex items-center justify-between border-b border-border/60 pb-4 text-xs uppercase tracking-[0.2em] text-muted-foreground">
             <span>Issue №01 · Made in Zambia</span>
             <span className="hidden sm:inline">
@@ -92,7 +92,7 @@ function Index() {
           </div>
         </div>
 
-        <div className="mx-auto grid max-w-7xl items-end gap-10 px-4 pb-16 pt-10 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:pb-24 lg:pt-16">
+        <div className="page-container grid items-end gap-10 pb-16 pt-10 lg:grid-cols-12 lg:gap-8 lg:pb-24 lg:pt-16">
           <div className="lg:col-span-7">
             <h1 className="font-display text-[clamp(3rem,8vw,6.5rem)] leading-[0.95] tracking-tight text-foreground">
               Original art,
@@ -138,7 +138,7 @@ function Index() {
 
       {/* Pillars — editorial bar */}
       <section className="border-y border-border/60">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 divide-border lg:grid-cols-4 lg:divide-x">
+        <div className="page-container grid grid-cols-2 divide-border lg:grid-cols-4 lg:divide-x">
           {[
             {
               icon: Palette,
@@ -182,7 +182,7 @@ function Index() {
       </section>
 
       {/* Featured — magazine layout */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <section className="page-container py-20 lg:py-28">
         <div className="flex items-end justify-between border-b border-border/60 pb-6">
           <div>
             <span className="text-xs uppercase tracking-[0.2em] text-primary">New work</span>
@@ -304,7 +304,7 @@ function Index() {
       </section>
 
       {collections.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+        <section className="page-container pb-20">
           <div className="flex items-end justify-between">
             <h2 className="font-display text-3xl font-semibold">Curated collections</h2>
             <Link to="/collections" className="text-sm text-primary hover:underline">
@@ -321,7 +321,7 @@ function Index() {
 
       {/* Sell CTA */}
 
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+      <section className="page-container pb-24">
         <div className="relative overflow-hidden rounded-sm border border-primary/30 bg-gradient-to-br from-card to-background px-8 py-16 sm:px-14 sm:py-24">
           <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
           <div className="relative grid gap-10 lg:grid-cols-2 lg:items-end">

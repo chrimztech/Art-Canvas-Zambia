@@ -84,7 +84,7 @@ function MyCommissions() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl font-semibold">My commissions</h1>
@@ -109,7 +109,7 @@ function MyCommissions() {
             </Link>
           </div>
         ) : (
-          <div className="mt-8 space-y-4">
+          <div className="mt-8 grid gap-4 xl:grid-cols-2 xl:items-start">
             {rows.map((c) => {
               const step = STEPS.indexOf(c.status);
               return (

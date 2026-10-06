@@ -29,8 +29,8 @@ function Unsubscribe() {
   }
 
   return (
-    <PageShell title="Newsletter" width="max-w-xl">
-      <div className="rounded-xl border border-border bg-card p-6">
+    <PageShell title="Newsletter">
+      <div className="max-w-xl rounded-xl border border-border bg-card p-6">
         {!token ? (
           <p className="text-muted-foreground">
             This unsubscribe link is incomplete. Use the link at the bottom of any newsletter email.

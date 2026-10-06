@@ -102,15 +102,16 @@ function Dashboard() {
       </div>
     );
 
-  const has = (r: string) => me.roles.includes(r);
-  const isAdmin = has("ADMIN") || has("SUPER_ADMIN");
+  const isAdmin = me.roles.includes("ADMIN") || me.roles.includes("SUPER_ADMIN");
+  // Admins can use every creator tool (the API allows it), so they never need to "enable" a role.
+  const has = (r: string) => me.roles.includes(r) || isAdmin;
   const isSeller = has("ARTIST") || has("INSTRUCTOR") || has("SUPPLIER");
   const missingRoles = CREATOR_ROLES.filter((r) => !has(r.role));
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="page-container space-y-10 py-10">
         <Card className="overflow-hidden">
           <CardContent className="relative p-8 sm:p-10">
             <div className="absolute inset-x-0 top-0 h-32 bg-[radial-gradient(circle_at_top,rgba(215,182,95,0.28),transparent_72%)]" />

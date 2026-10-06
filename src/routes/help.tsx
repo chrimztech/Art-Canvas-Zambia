@@ -240,7 +240,7 @@ function Help() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+      <div className="page-container py-16">
         <LifeBuoy className="h-10 w-10 text-primary" />
         <h1 className="mt-4 font-display text-4xl font-semibold">Help center</h1>
         <p className="mt-2 text-muted-foreground">
@@ -250,7 +250,7 @@ function Help() {
           </Link>
           .
         </p>
-        <div className="relative mt-8">
+        <div className="relative mt-8 max-w-2xl">
           <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
@@ -263,21 +263,23 @@ function Help() {
         {sections.length === 0 && (
           <p className="mt-10 text-muted-foreground">No answers match "{query}".</p>
         )}
-        {sections.map((s) => (
-          <section key={s.section} className="mt-10">
-            <h2 className="font-display text-2xl">{s.section}</h2>
-            <Accordion type="multiple" className="mt-2">
-              {s.items.map((i) => (
-                <AccordionItem key={i.q} value={i.q}>
-                  <AccordionTrigger className="text-left">{i.q}</AccordionTrigger>
-                  <AccordionContent className="text-foreground/85 leading-relaxed">
-                    {i.a}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </section>
-        ))}
+        <div className="grid gap-x-12 xl:grid-cols-2">
+          {sections.map((s) => (
+            <section key={s.section} className="mt-10">
+              <h2 className="font-display text-2xl">{s.section}</h2>
+              <Accordion type="multiple" className="mt-2">
+                {s.items.map((i) => (
+                  <AccordionItem key={i.q} value={i.q}>
+                    <AccordionTrigger className="text-left">{i.q}</AccordionTrigger>
+                    <AccordionContent className="text-foreground/85 leading-relaxed">
+                      {i.a}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </section>
+          ))}
+        </div>
       </div>
       <SiteFooter />
     </div>

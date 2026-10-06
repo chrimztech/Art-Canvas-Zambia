@@ -25,7 +25,7 @@ function Favorites() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="page-container py-12">
         <h1 className="font-display text-4xl font-semibold">Favorites</h1>
         <p className="mt-2 text-muted-foreground">
           Artworks you've saved. Pieces sell fast — originals are one of a kind.
@@ -47,7 +47,7 @@ function Favorites() {
             </Link>
           </div>
         ) : (
-          <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
             {artworks.map((a) => (
               <ArtworkCard key={a.id} artwork={a} />
             ))}

@@ -43,7 +43,7 @@ function Messages() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="page-container py-8">
         <h1 className="font-display text-3xl font-semibold">Messages</h1>
         <div className="mt-6 grid h-[70vh] overflow-hidden rounded-2xl border border-border bg-card md:grid-cols-[20rem_1fr]">
           <aside

@@ -26,7 +26,7 @@ function MyTickets() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <h1 className="font-display text-3xl font-semibold">My tickets</h1>
         <p className="mt-1 text-muted-foreground">
           Exhibition tickets you've booked, with your entry QR code.
@@ -43,7 +43,7 @@ function MyTickets() {
             </Link>
           </div>
         ) : (
-          <div className="mt-6 space-y-4">
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
             {tickets.map((t) => (
               <div
                 key={t.id}

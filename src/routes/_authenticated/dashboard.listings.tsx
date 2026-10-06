@@ -78,7 +78,7 @@ function Listings() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <h1 className="font-display text-3xl font-semibold">My listings</h1>
         <p className="mt-1 text-muted-foreground">
           Classes, exhibitions and supplies you run. Artworks live in{" "}
@@ -95,7 +95,7 @@ function Listings() {
             <TabsTrigger value="supplies">Supplies ({supplies.length})</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="classes" className="mt-6 space-y-4">
+          <TabsContent value="classes" className="mt-6 grid gap-4 xl:grid-cols-2 xl:items-start">
             {has("INSTRUCTOR") && <NewButton to="/dashboard/new-class" label="New class" />}
             {classes.length === 0 && (
               <Empty
@@ -157,7 +157,10 @@ function Listings() {
             ))}
           </TabsContent>
 
-          <TabsContent value="exhibitions" className="mt-6 space-y-4">
+          <TabsContent
+            value="exhibitions"
+            className="mt-6 grid gap-4 xl:grid-cols-2 xl:items-start"
+          >
             {(has("ARTIST") || has("INSTRUCTOR")) && (
               <NewButton to="/dashboard/new-exhibition" label="Host an exhibition" />
             )}
@@ -213,7 +216,7 @@ function Listings() {
             ))}
           </TabsContent>
 
-          <TabsContent value="supplies" className="mt-6 space-y-4">
+          <TabsContent value="supplies" className="mt-6 grid gap-4 xl:grid-cols-2 xl:items-start">
             {has("SUPPLIER") && <NewButton to="/dashboard/new-supply" label="New supply listing" />}
             {supplies.length === 0 && (
               <Empty

@@ -95,7 +95,7 @@ function ArtistProfile() {
           <img src={profile.coverImageUrl} alt="" className="h-full w-full object-cover" />
         )}
       </div>
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="page-container">
         <div className="-mt-12 flex flex-col items-center gap-4 sm:flex-row sm:items-end">
           <Avatar className="h-28 w-28 border-4 border-background">
             <AvatarImage src={profile.avatarUrl ?? undefined} />
@@ -205,7 +205,7 @@ function ArtistProfile() {
             No works for sale right now — try commissioning a piece.
           </p>
         ) : (
-          <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
             {available.map((a) => (
               <ArtworkCard key={a.id} artwork={a} showArtist={false} />
             ))}
@@ -214,7 +214,7 @@ function ArtistProfile() {
         {sold.length > 0 && (
           <>
             <h2 className="mt-12 font-display text-2xl font-semibold">Sold ({sold.length})</h2>
-            <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
               {sold.map((a) => (
                 <ArtworkCard key={a.id} artwork={a} showArtist={false} />
               ))}

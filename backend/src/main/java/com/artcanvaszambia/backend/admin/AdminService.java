@@ -180,7 +180,7 @@ public class AdminService {
                 throw ApiException.badRequest("Payment provider must be zynlepay or lenco");
             }
             if (com.artcanvaszambia.backend.payments.PaymentProviders.LENCO.equals(provider) && !lencoClient.isConfigured()) {
-                throw ApiException.badRequest("Set LENCO_API_TOKEN on the server before switching to Lenco");
+                throw ApiException.badRequest("Add your Lenco API token under Payment gateways (below) before switching to Lenco");
             }
             s.setPaymentProvider(provider);
         }

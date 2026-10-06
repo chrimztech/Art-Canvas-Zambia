@@ -27,7 +27,6 @@ function Stats() {
     <PageShell
       title="Shop stats"
       description="How your listings are performing over the last 12 months."
-      width="max-w-6xl"
     >
       {isLoading || !s ? (
         <p className="text-muted-foreground">Loading…</p>

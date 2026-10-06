@@ -52,7 +52,7 @@ function Exhibitions() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="page-container py-12">
         <div className="flex items-end justify-between">
           <div>
             <h1 className="font-display text-4xl font-semibold">Exhibitions</h1>

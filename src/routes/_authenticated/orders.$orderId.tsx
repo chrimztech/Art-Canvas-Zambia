@@ -106,7 +106,7 @@ function OrderDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+      <div className="page-container py-12">
         <Link to="/orders" className="text-sm text-muted-foreground hover:text-foreground">
           ← All orders
         </Link>
@@ -140,90 +140,94 @@ function OrderDetailPage() {
             </p>
           )}
 
-          <div className="mt-6 divide-y divide-border">
-            {order.items.map((i) => (
-              <div key={i.id} className="py-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="font-medium">{i.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatZmw(i.unitPriceZmw)} × {i.quantity}
-                      {i.sellerDisplayName ? ` · sold by ${i.sellerDisplayName}` : ""}
-                    </p>
+          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
+            <div className="divide-y divide-border">
+              {order.items.map((i) => (
+                <div key={i.id} className="py-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="font-medium">{i.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatZmw(i.unitPriceZmw)} × {i.quantity}
+                        {i.sellerDisplayName ? ` · sold by ${i.sellerDisplayName}` : ""}
+                      </p>
+                    </div>
+                    <p className="font-semibold">{formatZmw(i.lineTotalZmw)}</p>
                   </div>
-                  <p className="font-semibold">{formatZmw(i.lineTotalZmw)}</p>
+                  {i.refunded ? (
+                    <Badge variant="outline" className="mt-2">
+                      Refunded
+                    </Badge>
+                  ) : (
+                    paid && (
+                      <ItemStatus
+                        item={i}
+                        busy={busyItem === i.id}
+                        onReceived={() => confirmReceived(i)}
+                      />
+                    )
+                  )}
+                  {paid && <ItemActions orderId={order.id} item={i} onChange={reload} />}
                 </div>
-                {i.refunded ? (
-                  <Badge variant="outline" className="mt-2">
-                    Refunded
-                  </Badge>
-                ) : (
-                  paid && (
-                    <ItemStatus
-                      item={i}
-                      busy={busyItem === i.id}
-                      onReceived={() => confirmReceived(i)}
-                    />
-                  )
+              ))}
+            </div>
+
+            <aside className="space-y-6 rounded-xl border border-border bg-background/40 p-5 lg:sticky lg:top-36">
+              <dl className="space-y-1 text-sm">
+                {(Number(order.discountZmw) > 0 ||
+                  Number(order.shippingZmw) > 0 ||
+                  Number(order.giftCardZmw) > 0) && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <dt>Items</dt>
+                    <dd>{formatZmw(order.subtotalZmw)}</dd>
+                  </div>
                 )}
-                {paid && <ItemActions orderId={order.id} item={i} onChange={reload} />}
-              </div>
-            ))}
-          </div>
+                {Number(order.discountZmw) > 0 && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <dt>Discount{order.couponCode ? ` (${order.couponCode})` : ""}</dt>
+                    <dd>−{formatZmw(order.discountZmw)}</dd>
+                  </div>
+                )}
+                {Number(order.shippingZmw) > 0 && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <dt>Delivery</dt>
+                    <dd>{formatZmw(order.shippingZmw)}</dd>
+                  </div>
+                )}
+                {Number(order.giftCardZmw) > 0 && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <dt>Gift card</dt>
+                    <dd>−{formatZmw(order.giftCardZmw)}</dd>
+                  </div>
+                )}
+                <div className="flex justify-between pt-1 text-base font-semibold">
+                  <dt>Total paid</dt>
+                  <dd>{formatZmw(order.totalZmw)}</dd>
+                </div>
+              </dl>
 
-          <dl className="mt-2 space-y-1 border-t border-border pt-4 text-sm">
-            {(Number(order.discountZmw) > 0 ||
-              Number(order.shippingZmw) > 0 ||
-              Number(order.giftCardZmw) > 0) && (
-              <div className="flex justify-between text-muted-foreground">
-                <dt>Items</dt>
-                <dd>{formatZmw(order.subtotalZmw)}</dd>
-              </div>
-            )}
-            {Number(order.discountZmw) > 0 && (
-              <div className="flex justify-between text-muted-foreground">
-                <dt>Discount{order.couponCode ? ` (${order.couponCode})` : ""}</dt>
-                <dd>−{formatZmw(order.discountZmw)}</dd>
-              </div>
-            )}
-            {Number(order.shippingZmw) > 0 && (
-              <div className="flex justify-between text-muted-foreground">
-                <dt>Delivery</dt>
-                <dd>{formatZmw(order.shippingZmw)}</dd>
-              </div>
-            )}
-            {Number(order.giftCardZmw) > 0 && (
-              <div className="flex justify-between text-muted-foreground">
-                <dt>Gift card</dt>
-                <dd>−{formatZmw(order.giftCardZmw)}</dd>
-              </div>
-            )}
-            <div className="flex justify-between pt-1 text-base font-semibold">
-              <dt>Total paid</dt>
-              <dd>{formatZmw(order.totalZmw)}</dd>
-            </div>
-          </dl>
+              {ship && (
+                <div className="rounded-xl border border-border bg-background/40 p-4 text-sm">
+                  <p className="font-medium">
+                    {ship.method === "pickup" ? "Collection from seller" : "Delivery address"}
+                  </p>
+                  <p className="mt-1 text-muted-foreground">
+                    {[ship.name, ship.address, ship.city].filter(Boolean).join(", ") || "—"}
+                    {ship.phone ? ` · ${ship.phone}` : ""}
+                  </p>
+                  {ship.notes && <p className="mt-1 text-muted-foreground">Notes: {ship.notes}</p>}
+                </div>
+              )}
 
-          {ship && (
-            <div className="mt-6 rounded-xl border border-border bg-background/40 p-4 text-sm">
-              <p className="font-medium">
-                {ship.method === "pickup" ? "Collection from seller" : "Delivery address"}
-              </p>
-              <p className="mt-1 text-muted-foreground">
-                {[ship.name, ship.address, ship.city].filter(Boolean).join(", ") || "—"}
-                {ship.phone ? ` · ${ship.phone}` : ""}
-              </p>
-              {ship.notes && <p className="mt-1 text-muted-foreground">Notes: {ship.notes}</p>}
-            </div>
-          )}
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Button asChild>
-              <Link to="/browse">Continue shopping</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </Button>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild>
+                  <Link to="/browse">Continue shopping</Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link to="/dashboard">Dashboard</Link>
+                </Button>
+              </div>
+            </aside>
           </div>
         </div>
       </div>

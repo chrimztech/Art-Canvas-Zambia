@@ -98,7 +98,7 @@ function Commissions() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="page-container py-12">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
           <div>
             <Brush className="h-10 w-10 text-primary" />

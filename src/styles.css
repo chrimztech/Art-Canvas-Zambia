@@ -183,3 +183,17 @@
     transition: color 180ms ease;
   }
 }
+
+/* Site-wide page width: fills wide screens instead of leaving empty margins. */
+@utility page-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1680px;
+  padding-inline: 1rem;
+  @variant sm {
+    padding-inline: 1.5rem;
+  }
+  @variant lg {
+    padding-inline: 2.5rem;
+  }
+}

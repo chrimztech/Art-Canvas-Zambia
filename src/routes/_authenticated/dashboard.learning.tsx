@@ -41,7 +41,7 @@ function Learning() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <h1 className="font-display text-3xl font-semibold">My classes</h1>
         <p className="mt-1 text-muted-foreground">
           Classes you've enrolled in. Online joining links appear once your seat is confirmed.
@@ -75,7 +75,7 @@ function Group({ title, rows, empty }: { title: string; rows: Enrollment[]; empt
       {rows.length === 0 ? (
         <p className="mt-3 text-sm text-muted-foreground">{empty}</p>
       ) : (
-        <div className="mt-4 space-y-4">
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
           {rows.map((e) => (
             <div
               key={e.id}

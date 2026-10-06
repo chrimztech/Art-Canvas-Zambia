@@ -127,7 +127,7 @@ function ClassForm() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <Link
           to="/dashboard/listings"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -139,166 +139,173 @@ function ClassForm() {
           {edit ? "Edit class" : "New class"}
         </h1>
         <p className="mt-1 text-muted-foreground">Teach what you know — online or in person.</p>
-        <form onSubmit={submit} className="mt-8 space-y-4">
-          <ImageField value={cover} onChange={setCover} />
-          <div>
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              required
-              value={form.title}
-              onChange={set("title")}
-              placeholder="Watercolor fundamentals"
-            />
+        <form
+          onSubmit={submit}
+          className="mt-8 grid gap-8 lg:grid-cols-[minmax(260px,400px)_minmax(0,1fr)] lg:items-start"
+        >
+          <div className="lg:sticky lg:top-36">
+            <ImageField value={cover} onChange={setCover} />
           </div>
-          <div>
-            <Label htmlFor="desc">Description</Label>
-            <Textarea
-              id="desc"
-              required
-              rows={4}
-              value={form.description}
-              onChange={set("description")}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="mode">Format</Label>
-              <select id="mode" value={form.mode} onChange={set("mode")} className={SELECT}>
-                <option value="in_person">In person</option>
-                <option value="online">Online</option>
-                <option value="hybrid">Hybrid</option>
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="level">Skill level</Label>
-              <select
-                id="level"
-                value={form.skillLevel}
-                onChange={set("skillLevel")}
-                className={SELECT}
-              >
-                <option value="">All levels</option>
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced</option>
-              </select>
-            </div>
-          </div>
-          {form.mode !== "online" && (
-            <div>
-              <Label htmlFor="location">Venue / address</Label>
+              <Label htmlFor="title">Title</Label>
               <Input
-                id="location"
+                id="title"
                 required
-                value={form.location}
-                onChange={set("location")}
-                placeholder="Studio 4, Manda Hill, Lusaka"
-              />
-            </div>
-          )}
-          {form.mode !== "in_person" && (
-            <div>
-              <Label htmlFor="meeting">Meeting link</Label>
-              <Input
-                id="meeting"
-                type="url"
-                required
-                value={form.meetingUrl}
-                onChange={set("meetingUrl")}
-                placeholder="https://meet.google.com/…"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Only shown to confirmed students.
-              </p>
-            </div>
-          )}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="starts">Starts</Label>
-              <Input
-                id="starts"
-                required
-                type="datetime-local"
-                value={form.startsAt}
-                onChange={set("startsAt")}
+                value={form.title}
+                onChange={set("title")}
+                placeholder="Watercolor fundamentals"
               />
             </div>
             <div>
-              <Label htmlFor="ends">Ends</Label>
-              <Input
-                id="ends"
+              <Label htmlFor="desc">Description</Label>
+              <Textarea
+                id="desc"
                 required
-                type="datetime-local"
-                value={form.endsAt}
-                onChange={set("endsAt")}
+                rows={4}
+                value={form.description}
+                onChange={set("description")}
               />
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="mode">Format</Label>
+                <select id="mode" value={form.mode} onChange={set("mode")} className={SELECT}>
+                  <option value="in_person">In person</option>
+                  <option value="online">Online</option>
+                  <option value="hybrid">Hybrid</option>
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="level">Skill level</Label>
+                <select
+                  id="level"
+                  value={form.skillLevel}
+                  onChange={set("skillLevel")}
+                  className={SELECT}
+                >
+                  <option value="">All levels</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+            </div>
+            {form.mode !== "online" && (
+              <div>
+                <Label htmlFor="location">Venue / address</Label>
+                <Input
+                  id="location"
+                  required
+                  value={form.location}
+                  onChange={set("location")}
+                  placeholder="Studio 4, Manda Hill, Lusaka"
+                />
+              </div>
+            )}
+            {form.mode !== "in_person" && (
+              <div>
+                <Label htmlFor="meeting">Meeting link</Label>
+                <Input
+                  id="meeting"
+                  type="url"
+                  required
+                  value={form.meetingUrl}
+                  onChange={set("meetingUrl")}
+                  placeholder="https://meet.google.com/…"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Only shown to confirmed students.
+                </p>
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="starts">Starts</Label>
+                <Input
+                  id="starts"
+                  required
+                  type="datetime-local"
+                  value={form.startsAt}
+                  onChange={set("startsAt")}
+                />
+              </div>
+              <div>
+                <Label htmlFor="ends">Ends</Label>
+                <Input
+                  id="ends"
+                  required
+                  type="datetime-local"
+                  value={form.endsAt}
+                  onChange={set("endsAt")}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="cap">Seats</Label>
+                <Input
+                  id="cap"
+                  required
+                  type="number"
+                  min={1}
+                  value={form.capacity}
+                  onChange={set("capacity")}
+                />
+              </div>
+              <div>
+                <Label htmlFor="price">Price (ZMW, 0 = free)</Label>
+                <Input
+                  id="price"
+                  required
+                  type="number"
+                  min={0}
+                  value={form.priceZmw}
+                  onChange={set("priceZmw")}
+                />
+              </div>
+            </div>
             <div>
-              <Label htmlFor="cap">Seats</Label>
-              <Input
-                id="cap"
-                required
-                type="number"
-                min={1}
-                value={form.capacity}
-                onChange={set("capacity")}
+              <Label htmlFor="syllabus">What you'll cover</Label>
+              <Textarea
+                id="syllabus"
+                rows={4}
+                value={form.syllabus}
+                onChange={set("syllabus")}
+                placeholder="One topic per line"
               />
             </div>
             <div>
-              <Label htmlFor="price">Price (ZMW, 0 = free)</Label>
+              <Label htmlFor="prereq">Prerequisites</Label>
               <Input
-                id="price"
-                required
-                type="number"
-                min={0}
-                value={form.priceZmw}
-                onChange={set("priceZmw")}
+                id="prereq"
+                value={form.prerequisites}
+                onChange={set("prerequisites")}
+                placeholder="None — bring curiosity"
               />
             </div>
+            <div>
+              <Label htmlFor="tags">Tags</Label>
+              <Input
+                id="tags"
+                value={form.tags}
+                onChange={set("tags")}
+                placeholder="watercolour, landscapes"
+              />
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.materialsIncluded}
+                onChange={(e) => setForm({ ...form, materialsIncluded: e.target.checked })}
+                className="h-4 w-4 accent-[var(--primary)]"
+              />
+              Materials are included in the price
+            </label>
+            <Button type="submit" size="lg" disabled={busy}>
+              {busy ? "Saving…" : edit ? "Save changes" : "Publish class"}
+            </Button>
           </div>
-          <div>
-            <Label htmlFor="syllabus">What you'll cover</Label>
-            <Textarea
-              id="syllabus"
-              rows={4}
-              value={form.syllabus}
-              onChange={set("syllabus")}
-              placeholder="One topic per line"
-            />
-          </div>
-          <div>
-            <Label htmlFor="prereq">Prerequisites</Label>
-            <Input
-              id="prereq"
-              value={form.prerequisites}
-              onChange={set("prerequisites")}
-              placeholder="None — bring curiosity"
-            />
-          </div>
-          <div>
-            <Label htmlFor="tags">Tags</Label>
-            <Input
-              id="tags"
-              value={form.tags}
-              onChange={set("tags")}
-              placeholder="watercolour, landscapes"
-            />
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.materialsIncluded}
-              onChange={(e) => setForm({ ...form, materialsIncluded: e.target.checked })}
-              className="h-4 w-4 accent-[var(--primary)]"
-            />
-            Materials are included in the price
-          </label>
-          <Button type="submit" size="lg" disabled={busy}>
-            {busy ? "Saving…" : edit ? "Save changes" : "Publish class"}
-          </Button>
         </form>
       </div>
     </div>

@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { cn } from "@/lib/utils";
 
 /** Standard page frame: header, a titled content column and the footer. */
 export function PageShell({
@@ -9,18 +8,16 @@ export function PageShell({
   description,
   actions,
   children,
-  width = "max-w-5xl",
 }: {
   title: string;
   description?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
-  width?: string;
 }) {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className={cn("mx-auto px-4 py-10 sm:px-6 lg:px-8", width)}>
+      <div className="page-container py-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-4xl font-semibold">{title}</h1>

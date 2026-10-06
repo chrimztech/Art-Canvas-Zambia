@@ -200,7 +200,7 @@ function ArtworkDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="page-container py-10">
         <Link to="/browse" className="text-sm text-muted-foreground hover:text-foreground">
           ← Back to browse
         </Link>

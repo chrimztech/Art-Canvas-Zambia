@@ -126,7 +126,7 @@ function SupplyForm() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <Link
           to="/dashboard/listings"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -141,135 +141,142 @@ function SupplyForm() {
           Sell paint, brushes, canvas, paper or tools to local artists. Stock updates automatically
           as orders are paid.
         </p>
-        <form onSubmit={submit} className="mt-8 space-y-4">
-          <ImageField value={cover} onChange={setCover} aspect="aspect-square max-w-xs" />
-          <GalleryField value={gallery} onChange={setGallery} max={5} />
-          <div>
-            <Label htmlFor="name">Item name</Label>
-            <Input
-              id="name"
-              required
-              value={form.name}
-              onChange={set("name")}
-              placeholder="Winsor & Newton watercolor set"
-            />
+        <form
+          onSubmit={submit}
+          className="mt-8 grid gap-8 lg:grid-cols-[minmax(260px,400px)_minmax(0,1fr)] lg:items-start"
+        >
+          <div className="lg:sticky lg:top-36">
+            <ImageField value={cover} onChange={setCover} aspect="aspect-square" />
           </div>
-          <div>
-            <Label htmlFor="desc">Description</Label>
-            <Textarea id="desc" rows={4} value={form.description} onChange={set("description")} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <GalleryField value={gallery} onChange={setGallery} max={5} />
             <div>
-              <Label htmlFor="category">Category</Label>
-              <select
-                id="category"
-                value={form.category}
-                onChange={set("category")}
-                className={`${SELECT} capitalize`}
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="condition">Condition</Label>
-              <select
-                id="condition"
-                value={form.condition}
-                onChange={set("condition")}
-                className={SELECT}
-              >
-                <option value="new">New</option>
-                <option value="used">Used</option>
-              </select>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="price">Price (ZMW)</Label>
+              <Label htmlFor="name">Item name</Label>
               <Input
-                id="price"
+                id="name"
                 required
-                type="number"
-                min={0}
-                value={form.priceZmw}
-                onChange={set("priceZmw")}
+                value={form.name}
+                onChange={set("name")}
+                placeholder="Winsor & Newton watercolor set"
               />
             </div>
             <div>
-              <Label htmlFor="stock">Stock</Label>
-              <Input
-                id="stock"
-                required
-                type="number"
-                min={0}
-                value={form.stock}
-                onChange={set("stock")}
-              />
+              <Label htmlFor="desc">Description</Label>
+              <Textarea id="desc" rows={4} value={form.description} onChange={set("description")} />
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="brand">Brand</Label>
-              <Input id="brand" value={form.brand} onChange={set("brand")} />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <select
+                  id="category"
+                  value={form.category}
+                  onChange={set("category")}
+                  className={`${SELECT} capitalize`}
+                >
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="condition">Condition</Label>
+                <select
+                  id="condition"
+                  value={form.condition}
+                  onChange={set("condition")}
+                  className={SELECT}
+                >
+                  <option value="new">New</option>
+                  <option value="used">Used</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="sku">SKU</Label>
-              <Input id="sku" value={form.sku} onChange={set("sku")} />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="price">Price (ZMW)</Label>
+                <Input
+                  id="price"
+                  required
+                  type="number"
+                  min={0}
+                  value={form.priceZmw}
+                  onChange={set("priceZmw")}
+                />
+              </div>
+              <div>
+                <Label htmlFor="stock">Stock</Label>
+                <Input
+                  id="stock"
+                  required
+                  type="number"
+                  min={0}
+                  value={form.stock}
+                  onChange={set("stock")}
+                />
+              </div>
             </div>
-            <div>
-              <Label htmlFor="dim">Dimensions</Label>
-              <Input id="dim" value={form.dimensions} onChange={set("dimensions")} />
-            </div>
-            <div>
-              <Label htmlFor="weight">Weight (kg)</Label>
-              <Input
-                id="weight"
-                type="number"
-                min={0}
-                step="0.1"
-                value={form.weightKg}
-                onChange={set("weightKg")}
-              />
-            </div>
-            <div>
-              <Label htmlFor="shipfee">Delivery fee (K)</Label>
-              <Input
-                id="shipfee"
-                type="number"
-                min={0}
-                value={form.shippingFeeZmw}
-                onChange={set("shippingFeeZmw")}
-                placeholder="0 = free"
-              />
-            </div>
-            <div>
-              <Label htmlFor="warranty">Warranty (months)</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="brand">Brand</Label>
+                <Input id="brand" value={form.brand} onChange={set("brand")} />
+              </div>
+              <div>
+                <Label htmlFor="sku">SKU</Label>
+                <Input id="sku" value={form.sku} onChange={set("sku")} />
+              </div>
+              <div>
+                <Label htmlFor="dim">Dimensions</Label>
+                <Input id="dim" value={form.dimensions} onChange={set("dimensions")} />
+              </div>
+              <div>
+                <Label htmlFor="weight">Weight (kg)</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  min={0}
+                  step="0.1"
+                  value={form.weightKg}
+                  onChange={set("weightKg")}
+                />
+              </div>
+              <div>
+                <Label htmlFor="shipfee">Delivery fee (K)</Label>
+                <Input
+                  id="shipfee"
+                  type="number"
+                  min={0}
+                  value={form.shippingFeeZmw}
+                  onChange={set("shippingFeeZmw")}
+                  placeholder="0 = free"
+                />
+              </div>
+              <div>
+                <Label htmlFor="warranty">Warranty (months)</Label>
 
-              <Input
-                id="warranty"
-                type="number"
-                min={0}
-                value={form.warrantyMonths}
-                onChange={set("warrantyMonths")}
-              />
+                <Input
+                  id="warranty"
+                  type="number"
+                  min={0}
+                  value={form.warrantyMonths}
+                  onChange={set("warrantyMonths")}
+                />
+              </div>
+              <div>
+                <Label htmlFor="tags">Tags</Label>
+                <Input
+                  id="tags"
+                  value={form.tags}
+                  onChange={set("tags")}
+                  placeholder="acrylic, student grade"
+                />
+              </div>
             </div>
-            <div>
-              <Label htmlFor="tags">Tags</Label>
-              <Input
-                id="tags"
-                value={form.tags}
-                onChange={set("tags")}
-                placeholder="acrylic, student grade"
-              />
-            </div>
+            <Button type="submit" size="lg" disabled={busy}>
+              {busy ? "Saving…" : edit ? "Save changes" : "Publish listing"}
+            </Button>
           </div>
-          <Button type="submit" size="lg" disabled={busy}>
-            {busy ? "Saving…" : edit ? "Save changes" : "Publish listing"}
-          </Button>
         </form>
       </div>
     </div>

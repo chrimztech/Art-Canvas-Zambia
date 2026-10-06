@@ -29,7 +29,7 @@ const FOOTER_LINKS = {
 export function SiteFooter() {
   return (
     <footer className="mt-24">
-      <div className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+      <div className="page-container pb-10">
         <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-card/55 shadow-[0_28px_80px_rgba(0,0,0,0.24)] backdrop-blur-xl">
           <div className="grid gap-10 border-b border-border/60 px-6 py-10 sm:px-8 lg:grid-cols-[1.45fr_0.85fr_0.85fr_0.85fr] lg:px-10">
             <div className="max-w-xl">
@@ -147,7 +147,7 @@ export function SiteFooter() {
   /*
   return (
     <footer className="mt-24">
-      <div className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+      <div className="page-container pb-10">
         <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-card/55 shadow-[0_28px_80px_rgba(0,0,0,0.24)] backdrop-blur-xl">
           <div className="grid gap-10 border-b border-border/60 px-6 py-10 sm:px-8 lg:grid-cols-[1.45fr_0.85fr_0.85fr_0.85fr] lg:px-10">
           <div>

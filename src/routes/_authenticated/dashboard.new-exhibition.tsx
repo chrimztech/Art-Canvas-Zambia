@@ -121,7 +121,7 @@ function ExhibitionForm() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <Link
           to="/dashboard/listings"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -135,131 +135,138 @@ function ExhibitionForm() {
         <p className="mt-1 text-muted-foreground">
           List your opening, group show or gallery event. Free events issue QR tickets instantly.
         </p>
-        <form onSubmit={submit} className="mt-8 space-y-4">
-          <ImageField value={cover} onChange={setCover} />
-          <div>
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              required
-              value={form.title}
-              onChange={set("title")}
-              placeholder="Lusaka Contemporary 2026"
-            />
+        <form
+          onSubmit={submit}
+          className="mt-8 grid gap-8 lg:grid-cols-[minmax(260px,400px)_minmax(0,1fr)] lg:items-start"
+        >
+          <div className="lg:sticky lg:top-36">
+            <ImageField value={cover} onChange={setCover} />
           </div>
-          <div>
-            <Label htmlFor="desc">Description</Label>
-            <Textarea
-              id="desc"
-              required
-              rows={4}
-              value={form.description}
-              onChange={set("description")}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="theme">Theme</Label>
-              <Input id="theme" value={form.theme} onChange={set("theme")} />
-            </div>
-            <div>
-              <Label htmlFor="curator">Curator</Label>
-              <Input id="curator" value={form.curatorName} onChange={set("curatorName")} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="venue">Venue</Label>
+              <Label htmlFor="title">Title</Label>
               <Input
-                id="venue"
+                id="title"
                 required
-                value={form.venue}
-                onChange={set("venue")}
-                placeholder="Henry Tayali Gallery"
+                value={form.title}
+                onChange={set("title")}
+                placeholder="Lusaka Contemporary 2026"
               />
             </div>
             <div>
-              <Label htmlFor="city">City</Label>
-              <Input id="city" value={form.city} onChange={set("city")} placeholder="Lusaka" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="starts">Opens</Label>
-              <Input
-                id="starts"
+              <Label htmlFor="desc">Description</Label>
+              <Textarea
+                id="desc"
                 required
-                type="datetime-local"
-                value={form.startsAt}
-                onChange={set("startsAt")}
+                rows={4}
+                value={form.description}
+                onChange={set("description")}
               />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="theme">Theme</Label>
+                <Input id="theme" value={form.theme} onChange={set("theme")} />
+              </div>
+              <div>
+                <Label htmlFor="curator">Curator</Label>
+                <Input id="curator" value={form.curatorName} onChange={set("curatorName")} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="venue">Venue</Label>
+                <Input
+                  id="venue"
+                  required
+                  value={form.venue}
+                  onChange={set("venue")}
+                  placeholder="Henry Tayali Gallery"
+                />
+              </div>
+              <div>
+                <Label htmlFor="city">City</Label>
+                <Input id="city" value={form.city} onChange={set("city")} placeholder="Lusaka" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="starts">Opens</Label>
+                <Input
+                  id="starts"
+                  required
+                  type="datetime-local"
+                  value={form.startsAt}
+                  onChange={set("startsAt")}
+                />
+              </div>
+              <div>
+                <Label htmlFor="ends">Closes</Label>
+                <Input
+                  id="ends"
+                  required
+                  type="datetime-local"
+                  value={form.endsAt}
+                  onChange={set("endsAt")}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="cap">Capacity (blank = unlimited)</Label>
+                <Input
+                  id="cap"
+                  type="number"
+                  min={1}
+                  value={form.capacity}
+                  onChange={set("capacity")}
+                />
+              </div>
+              <div>
+                <Label htmlFor="price">Ticket price (ZMW, 0 = free)</Label>
+                <Input
+                  id="price"
+                  required
+                  type="number"
+                  min={0}
+                  value={form.ticketPriceZmw}
+                  onChange={set("ticketPriceZmw")}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="email">Contact email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={form.contactEmail}
+                  onChange={set("contactEmail")}
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone">Contact phone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={form.contactPhone}
+                  onChange={set("contactPhone")}
+                />
+              </div>
             </div>
             <div>
-              <Label htmlFor="ends">Closes</Label>
+              <Label htmlFor="tags">Tags</Label>
               <Input
-                id="ends"
-                required
-                type="datetime-local"
-                value={form.endsAt}
-                onChange={set("endsAt")}
+                id="tags"
+                value={form.tags}
+                onChange={set("tags")}
+                placeholder="photography, group show"
               />
             </div>
+            <Button type="submit" size="lg" disabled={busy}>
+              {busy ? "Saving…" : edit ? "Save changes" : "Publish exhibition"}
+            </Button>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="cap">Capacity (blank = unlimited)</Label>
-              <Input
-                id="cap"
-                type="number"
-                min={1}
-                value={form.capacity}
-                onChange={set("capacity")}
-              />
-            </div>
-            <div>
-              <Label htmlFor="price">Ticket price (ZMW, 0 = free)</Label>
-              <Input
-                id="price"
-                required
-                type="number"
-                min={0}
-                value={form.ticketPriceZmw}
-                onChange={set("ticketPriceZmw")}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="email">Contact email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={form.contactEmail}
-                onChange={set("contactEmail")}
-              />
-            </div>
-            <div>
-              <Label htmlFor="phone">Contact phone</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={form.contactPhone}
-                onChange={set("contactPhone")}
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="tags">Tags</Label>
-            <Input
-              id="tags"
-              value={form.tags}
-              onChange={set("tags")}
-              placeholder="photography, group show"
-            />
-          </div>
-          <Button type="submit" size="lg" disabled={busy}>
-            {busy ? "Saving…" : edit ? "Save changes" : "Publish exhibition"}
-          </Button>
         </form>
       </div>
     </div>

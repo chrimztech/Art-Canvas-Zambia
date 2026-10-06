@@ -88,13 +88,13 @@ function SupplyDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <Link to="/supplies" className="text-sm text-muted-foreground hover:text-foreground">
           ← All supplies
         </Link>
-        <div className="mt-6 grid gap-8 lg:grid-cols-2">
+        <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div>
-            <div className="aspect-square overflow-hidden rounded-2xl bg-muted">
+            <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
               {gallery[active] ? (
                 <img src={gallery[active]} alt={s.name} className="h-full w-full object-cover" />
               ) : (

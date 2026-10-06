@@ -29,25 +29,51 @@ import java.util.Map;
  */
 @Service
 public class LencoClient {
+    static final String SANDBOX_API = "https://sandbox.lenco.co/access/v2";
+    static final String SANDBOX_WIDGET = "https://pay.sandbox.lenco.co/js/v1/inline.js";
+    static final String LIVE_API = "https://api.lenco.co/access/v2";
+    static final String LIVE_WIDGET = "https://pay.lenco.co/js/v1/inline.js";
+
     private final RestClient restClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final PaymentCredentialService credentials;
 
+    // Server configuration (environment variables); keys saved in the admin panel take precedence.
     @Value("${app.lenco.api-base-url}")
-    private String apiBaseUrl;
+    private String envApiBaseUrl;
 
     @Value("${app.lenco.api-token:}")
-    private String apiToken;
+    private String envApiToken;
 
     @Value("${app.lenco.public-key:}")
-    private String publicKey;
+    private String envPublicKey;
 
     @Value("${app.lenco.account-id:}")
-    private String accountId;
+    private String envAccountId;
 
     @Value("${app.lenco.widget-url}")
-    private String widgetUrl;
+    private String envWidgetUrl;
 
-    public LencoClient() {
+    private String apiToken() {
+        return credentials.resolve(PaymentCredentialService.LENCO_API_TOKEN, envApiToken).trim();
+    }
+
+    private String accountId() {
+        return credentials.resolve(PaymentCredentialService.LENCO_ACCOUNT_ID, envAccountId).trim();
+    }
+
+    /** "live" or "sandbox" when chosen in the admin panel, otherwise null (use the server URLs). */
+    private String environment() {
+        return credentials.get(PaymentCredentialService.LENCO_ENVIRONMENT);
+    }
+
+    private String apiBaseUrl() {
+        String env = environment();
+        return "live".equals(env) ? LIVE_API : "sandbox".equals(env) ? SANDBOX_API : envApiBaseUrl;
+    }
+
+    public LencoClient(PaymentCredentialService credentials) {
+        this.credentials = credentials;
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout((int) Duration.ofSeconds(10).toMillis());
         factory.setReadTimeout((int) Duration.ofSeconds(30).toMillis());
@@ -55,15 +81,16 @@ public class LencoClient {
     }
 
     public boolean isConfigured() {
-        return !apiToken.isBlank();
+        return !apiToken().isBlank();
     }
 
     public String publicKey() {
-        return publicKey;
+        return credentials.resolve(PaymentCredentialService.LENCO_PUBLIC_KEY, envPublicKey).trim();
     }
 
     public String widgetUrl() {
-        return widgetUrl;
+        String env = environment();
+        return "live".equals(env) ? LIVE_WIDGET : "sandbox".equals(env) ? SANDBOX_WIDGET : envWidgetUrl;
     }
 
     /** Pushes a payment prompt to the customer's phone. Status is usually "pay-offline" until they approve. */
@@ -132,7 +159,7 @@ public class LencoClient {
         if (!isConfigured() || signature == null || rawBody == null) return false;
         try {
             String hashKey = HexFormat.of().formatHex(
-                    MessageDigest.getInstance("SHA-256").digest(apiToken.getBytes(StandardCharsets.UTF_8)));
+                    MessageDigest.getInstance("SHA-256").digest(apiToken().getBytes(StandardCharsets.UTF_8)));
             Mac mac = Mac.getInstance("HmacSHA512");
             mac.init(new SecretKeySpec(hashKey.getBytes(StandardCharsets.UTF_8), "HmacSHA512"));
             String expected = HexFormat.of().formatHex(mac.doFinal(rawBody.getBytes(StandardCharsets.UTF_8)));
@@ -144,6 +171,7 @@ public class LencoClient {
     }
 
     private String requireAccountId() {
+        String accountId = accountId();
         if (accountId.isBlank()) {
             throw ApiException.badRequest("Lenco account id is not configured (LENCO_ACCOUNT_ID)");
         }
@@ -152,15 +180,15 @@ public class LencoClient {
 
     private LencoResult call(String method, String path, Map<String, Object> body) {
         if (!isConfigured()) {
-            throw ApiException.badRequest("Lenco payments are not configured (LENCO_API_TOKEN)");
+            throw ApiException.badRequest("Lenco payments are not configured — add the API token under Admin → Settings → Payment gateways");
         }
         String raw;
         try {
             var spec = "GET".equals(method)
-                    ? restClient.get().uri(apiBaseUrl + path)
-                    : restClient.post().uri(apiBaseUrl + path).contentType(MediaType.APPLICATION_JSON).body(body);
+                    ? restClient.get().uri(apiBaseUrl() + path)
+                    : restClient.post().uri(apiBaseUrl() + path).contentType(MediaType.APPLICATION_JSON).body(body);
             // Lenco returns 400 with a JSON envelope for business errors (e.g. duplicate reference); read it rather than throw.
-            raw = spec.header("Authorization", "Bearer " + apiToken)
+            raw = spec.header("Authorization", "Bearer " + apiToken())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> { })

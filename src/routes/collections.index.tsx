@@ -31,7 +31,6 @@ function Collections() {
     <PageShell
       title="Curated collections"
       description="Hand-picked edits of Zambian art, chosen by our curators."
-      width="max-w-7xl"
     >
       {data.length === 0 ? (
         <EmptyState icon={<Library className="h-10 w-10" />} title="No collections yet">

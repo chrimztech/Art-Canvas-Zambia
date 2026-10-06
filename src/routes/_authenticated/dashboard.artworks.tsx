@@ -51,7 +51,7 @@ function MyArtworks() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <div className="flex items-center justify-between">
           <h1 className="font-display text-3xl font-semibold">My artworks</h1>
           <Button asChild>

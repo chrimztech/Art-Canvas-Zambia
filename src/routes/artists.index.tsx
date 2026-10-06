@@ -41,7 +41,7 @@ function Artists() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="page-container py-12">
         <h1 className="font-display text-4xl font-semibold">Artists</h1>
         <p className="mt-2 text-muted-foreground">
           Zambian creators selling original work on ChrisEpic Arts.

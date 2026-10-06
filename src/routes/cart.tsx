@@ -90,7 +90,7 @@ function Cart() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <h1 className="font-display text-3xl font-semibold">Your cart</h1>
         {authLoading ? (
           <p className="mt-6 text-muted-foreground">Loading…</p>
@@ -117,101 +117,102 @@ function Cart() {
             </div>
           </div>
         ) : (
-          <>
-            <div className="mt-6 divide-y divide-border rounded-xl border border-border bg-card">
-              {items.map((i) => (
-                <div key={i.id} className="flex items-center gap-4 p-4">
-                  <div className="h-20 w-20 shrink-0 overflow-hidden rounded bg-muted">
-                    {i.coverImageUrl && (
-                      <img
-                        src={i.coverImageUrl}
-                        alt={i.title}
-                        className="h-full w-full object-cover"
-                      />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    {i.itemType === "SUPPLY" ? (
-                      <Link
-                        to="/supplies/$slug"
-                        params={{ slug: i.slug }}
-                        className="font-medium hover:text-primary"
-                      >
-                        {i.title}
-                      </Link>
-                    ) : (
-                      <Link
-                        to="/artworks/$slug"
-                        params={{ slug: i.slug }}
-                        className="font-medium hover:text-primary"
-                      >
-                        {i.title}
-                      </Link>
-                    )}
-                    <p className="text-sm text-muted-foreground">
-                      {formatZmw(i.priceZmw)} {i.itemType === "SUPPLY" ? "each" : ""}
-                    </p>
-                    {!i.available && (
-                      <p className="mt-1 flex items-center gap-1 text-xs text-destructive">
-                        <AlertTriangle className="h-3 w-3" /> No longer available — remove it to
-                        check out
-                      </p>
-                    )}
-                  </div>
-                  {i.maxQuantity > 1 && i.available ? (
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => setQuantity(i, i.quantity - 1)}
-                        disabled={i.quantity <= 1}
-                        aria-label="Decrease quantity"
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      <span className="w-8 text-center text-sm">{i.quantity}</span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => setQuantity(i, i.quantity + 1)}
-                        disabled={i.quantity >= i.maxQuantity}
-                        aria-label="Increase quantity"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
+          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(380px,520px)] lg:items-start">
+            <div>
+              <div className="divide-y divide-border rounded-xl border border-border bg-card">
+                {items.map((i) => (
+                  <div key={i.id} className="flex items-center gap-4 p-4">
+                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded bg-muted">
+                      {i.coverImageUrl && (
+                        <img
+                          src={i.coverImageUrl}
+                          alt={i.title}
+                          className="h-full w-full object-cover"
+                        />
+                      )}
                     </div>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">× {i.quantity}</span>
-                  )}
-                  <p className="w-24 text-right font-semibold">
-                    {formatZmw(Number(i.priceZmw) * i.quantity)}
-                  </p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => remove(i.id)}
-                    aria-label="Remove"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 flex items-center justify-between rounded-xl border border-border bg-card p-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Items</p>
-                <p className="font-display text-2xl font-semibold">{formatZmw(total)}</p>
+                    <div className="min-w-0 flex-1">
+                      {i.itemType === "SUPPLY" ? (
+                        <Link
+                          to="/supplies/$slug"
+                          params={{ slug: i.slug }}
+                          className="font-medium hover:text-primary"
+                        >
+                          {i.title}
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/artworks/$slug"
+                          params={{ slug: i.slug }}
+                          className="font-medium hover:text-primary"
+                        >
+                          {i.title}
+                        </Link>
+                      )}
+                      <p className="text-sm text-muted-foreground">
+                        {formatZmw(i.priceZmw)} {i.itemType === "SUPPLY" ? "each" : ""}
+                      </p>
+                      {!i.available && (
+                        <p className="mt-1 flex items-center gap-1 text-xs text-destructive">
+                          <AlertTriangle className="h-3 w-3" /> No longer available — remove it to
+                          check out
+                        </p>
+                      )}
+                    </div>
+                    {i.maxQuantity > 1 && i.available ? (
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setQuantity(i, i.quantity - 1)}
+                          disabled={i.quantity <= 1}
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <span className="w-8 text-center text-sm">{i.quantity}</span>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setQuantity(i, i.quantity + 1)}
+                          disabled={i.quantity >= i.maxQuantity}
+                          aria-label="Increase quantity"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">× {i.quantity}</span>
+                    )}
+                    <p className="w-24 text-right font-semibold">
+                      {formatZmw(Number(i.priceZmw) * i.quantity)}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => remove(i.id)}
+                      aria-label="Remove"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
-              <p className="max-w-xs text-right text-xs text-muted-foreground">
-                No extra buyer fees. Sellers' delivery charges, discount codes and gift cards are
-                applied below.
-              </p>
-            </div>
 
-            <div className="mt-6">
+              <div className="mt-6 flex items-center justify-between rounded-xl border border-border bg-card p-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Items</p>
+                  <p className="font-display text-2xl font-semibold">{formatZmw(total)}</p>
+                </div>
+                <p className="max-w-xs text-right text-xs text-muted-foreground">
+                  No extra buyer fees. Sellers' delivery charges, discount codes and gift cards are
+                  applied below.
+                </p>
+              </div>
+            </div>
+            <div className="lg:sticky lg:top-36">
               {unavailable.length > 0 ? (
                 <p className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm">
                   Remove{" "}
@@ -237,7 +238,7 @@ function Cart() {
                 />
               )}
             </div>
-          </>
+          </div>
         )}
       </div>
       <SiteFooter />

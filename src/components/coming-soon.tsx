@@ -9,7 +9,7 @@ export function ComingSoon({ title, desc }: Props) {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-3xl px-4 py-24 text-center">
+      <div className="page-container py-24 text-center">
         <Construction className="mx-auto h-10 w-10 text-primary" />
         <h1 className="mt-6 font-display text-4xl font-semibold">{title}</h1>
         <p className="mt-3 text-muted-foreground">{desc}</p>

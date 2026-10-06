@@ -34,3 +34,6 @@ dist-ssr
 # Backend build output and user-uploaded files (never commit)
 backend/target/
 backend/uploads/
+
+# Backend secrets (payment keys, SMTP)
+backend/secrets.properties

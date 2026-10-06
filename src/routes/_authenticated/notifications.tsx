@@ -45,7 +45,6 @@ function Notifications() {
     <PageShell
       title="Notifications"
       description="Offers, orders, new work from artists you follow and search alerts."
-      width="max-w-3xl"
       actions={
         unread > 0 && (
           <Button variant="outline" size="sm" onClick={readAll}>

@@ -3,6 +3,7 @@ import { AdminRefunds } from "@/components/admin-refunds";
 import { AdminReviews } from "@/components/admin-reviews";
 import { AdminCollections, AdminInbox, AdminReports } from "@/components/admin-marketplace";
 import { CouponManager } from "@/components/coupon-manager";
+import { PaymentGateways } from "@/components/payment-gateways";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import type {
@@ -442,7 +443,7 @@ export function AdminPanel() {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
-        <div className="mx-auto max-w-7xl p-10 text-muted-foreground">Loading...</div>
+        <div className="page-container py-10 text-muted-foreground">Loading...</div>
       </div>
     );
   }
@@ -451,7 +452,7 @@ export function AdminPanel() {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader />
-        <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+        <div className="page-container py-20 text-center">
           <Shield className="mx-auto h-10 w-10 text-muted-foreground/60" />
           <h1 className="mt-4 font-display text-2xl font-semibold">Admin access required</h1>
           <p className="mt-2 text-muted-foreground">
@@ -477,7 +478,7 @@ export function AdminPanel() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="page-container py-10">
         <div className="space-y-8">
           <Card className="overflow-hidden">
             <CardContent className="relative p-8 sm:p-10">
@@ -784,6 +785,11 @@ export function AdminPanel() {
                   </Card>
                 )}
               </div>
+              {isSuper && (
+                <div className="mt-6">
+                  <PaymentGateways onSaved={() => void load()} />
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="users" className="mt-6">

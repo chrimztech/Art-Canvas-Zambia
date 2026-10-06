@@ -184,7 +184,7 @@ function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="font-display text-3xl font-semibold">Your profile</h1>
@@ -201,8 +201,8 @@ function ProfilePage() {
           )}
         </div>
 
-        <form onSubmit={save} className="mt-8 space-y-6">
-          <Card>
+        <form onSubmit={save} className="mt-8 grid gap-6 xl:grid-cols-2 xl:items-start">
+          <Card className="xl:col-span-2">
             <CardContent className="p-0">
               <div className="relative h-36 overflow-hidden rounded-t-xl bg-muted">
                 {form.coverImageUrl && (
@@ -527,14 +527,18 @@ function ProfilePage() {
             </Card>
           )}
 
-          <Button type="submit" size="lg" disabled={busy || !!uploading}>
-            {busy ? "Saving…" : "Save profile"}
-          </Button>
+          <div className="xl:col-span-2">
+            <Button type="submit" size="lg" disabled={busy || !!uploading}>
+              {busy ? "Saving…" : "Save profile"}
+            </Button>
+          </div>
         </form>
 
-        <ChangePassword />
-        <ActiveSessions />
-        <BlockedMembers />
+        <div className="mt-10 grid gap-6 xl:grid-cols-2 xl:items-start [&>*]:mt-0">
+          <ChangePassword />
+          <ActiveSessions />
+          <BlockedMembers />
+        </div>
       </div>
     </div>
   );

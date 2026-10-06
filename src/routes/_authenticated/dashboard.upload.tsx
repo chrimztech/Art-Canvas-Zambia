@@ -204,7 +204,7 @@ function ArtworkForm() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="page-container py-10">
         <Link
           to="/dashboard/artworks"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -224,7 +224,7 @@ function ArtworkForm() {
             e.preventDefault();
             void submit(false);
           }}
-          className="mt-8 space-y-6"
+          className="mt-8 grid gap-6 xl:grid-cols-2 xl:items-start"
         >
           <Card>
             <CardHeader>
@@ -488,7 +488,7 @@ function ArtworkForm() {
             </CardContent>
           </Card>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 xl:col-span-2">
             <Button type="submit" size="lg" disabled={busy}>
               {busy ? "Saving…" : edit ? "Save & publish" : "Publish artwork"}
             </Button>

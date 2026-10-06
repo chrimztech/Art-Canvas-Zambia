@@ -55,7 +55,7 @@ function About() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
-      <section className="mx-auto max-w-4xl px-4 pt-16 pb-10 text-center sm:px-6 lg:px-8">
+      <section className="page-container pt-16 pb-10 text-center">
         <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[0.68rem] uppercase tracking-[0.22em] text-primary">
           <Sparkles className="h-3.5 w-3.5" />
           About us
@@ -63,14 +63,14 @@ function About() {
         <h1 className="mt-6 font-display text-4xl leading-tight sm:text-5xl">
           Zambia's home for original art, <em className="text-primary">made and sold direct.</em>
         </h1>
-        <p className="mt-5 text-base leading-7 text-muted-foreground sm:text-lg">
+        <p className="mx-auto mt-5 max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
           ChrisEpic Arts connects Zambian artists, instructors and suppliers directly with
           collectors, students and buyers — one platform for paintings, sculpture, commissions,
           classes, exhibitions and art supplies.
         </p>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
+      <section className="page-container pb-16">
         <div className="grid gap-6 sm:grid-cols-2">
           {VALUES.map((v) => (
             <Card key={v.title}>
@@ -88,7 +88,7 @@ function About() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 pb-24 sm:px-6 lg:px-8">
+      <section className="page-container pb-24">
         <Card className="overflow-hidden">
           <CardContent className="flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
             <div>

@@ -48,14 +48,13 @@ function CollectionPage() {
     <PageShell
       title={data.collection.title}
       description={data.collection.description ?? undefined}
-      width="max-w-7xl"
       actions={
         <Link to="/collections" className="text-sm text-primary hover:underline">
           All collections →
         </Link>
       }
     >
-      <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
         {data.artworks.map((a) => (
           <ArtworkCard key={a.id} artwork={a} />
         ))}

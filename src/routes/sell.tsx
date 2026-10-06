@@ -12,7 +12,7 @@ function Sell() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+      <div className="page-container py-16">
         <h1 className="font-display text-5xl font-semibold">Sell your art on ChrisEpic Arts</h1>
         <p className="mt-4 text-lg text-muted-foreground">
           Reach collectors across Zambia. Get paid in Kwacha. Keep most of every sale.

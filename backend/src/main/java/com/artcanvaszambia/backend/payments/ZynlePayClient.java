@@ -32,16 +32,32 @@ public class ZynlePayClient {
     @Value("${app.zynlepay.payment-status-url}")
     private String paymentStatusUrl;
 
+    // Server configuration; credentials saved in the admin panel take precedence.
     @Value("${app.zynlepay.merchant-id}")
-    private String merchantId;
+    private String envMerchantId;
 
     @Value("${app.zynlepay.api-id}")
-    private String apiId;
+    private String envApiId;
 
     @Value("${app.zynlepay.api-key}")
-    private String apiKey;
+    private String envApiKey;
 
-    public ZynlePayClient() {
+    private final PaymentCredentialService credentials;
+
+    private String merchantId() {
+        return credentials.resolve(PaymentCredentialService.ZYNLEPAY_MERCHANT_ID, envMerchantId).trim();
+    }
+
+    private String apiId() {
+        return credentials.resolve(PaymentCredentialService.ZYNLEPAY_API_ID, envApiId).trim();
+    }
+
+    private String apiKey() {
+        return credentials.resolve(PaymentCredentialService.ZYNLEPAY_API_KEY, envApiKey).trim();
+    }
+
+    public ZynlePayClient(PaymentCredentialService credentials) {
+        this.credentials = credentials;
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout((int) Duration.ofSeconds(10).toMillis());
         factory.setReadTimeout((int) Duration.ofSeconds(20).toMillis());
@@ -101,26 +117,26 @@ public class ZynlePayClient {
 
     public ZynlePayResult checkBalance() {
         Map<String, Object> auth = new LinkedHashMap<>();
-        auth.put("merchant_id", merchantId);
-        auth.put("api_id", apiId);
-        auth.put("api_key", apiKey);
+        auth.put("merchant_id", merchantId());
+        auth.put("api_id", apiId());
+        auth.put("api_key", apiKey());
         Map<String, Object> body = Map.of("auth", auth, "data", Map.of("method", "checkBalance"));
         return parse(post(apiBaseUrl, body));
     }
 
     public ZynlePayResult paymentStatus(String referenceNo) {
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("api_id", apiId);
-        body.put("api_key", apiKey);
+        body.put("api_id", apiId());
+        body.put("api_key", apiKey());
         body.put("reference_no", referenceNo);
         return parse(post(paymentStatusUrl, body));
     }
 
     private ZynlePayResult callJsonApi(String channel, Map<String, Object> data) {
         Map<String, Object> auth = new LinkedHashMap<>();
-        auth.put("merchant_id", merchantId);
-        auth.put("api_id", apiId);
-        auth.put("api_key", apiKey);
+        auth.put("merchant_id", merchantId());
+        auth.put("api_id", apiId());
+        auth.put("api_key", apiKey());
         auth.put("channel", channel);
         Map<String, Object> body = Map.of("auth", auth, "data", data);
         return parse(post(apiBaseUrl, body));

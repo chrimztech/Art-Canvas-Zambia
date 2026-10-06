@@ -34,7 +34,7 @@ function Supplies() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="page-container py-12">
         <div className="flex items-end justify-between">
           <div>
             <h1 className="font-display text-4xl font-semibold">Art supplies</h1>
@@ -59,7 +59,7 @@ function Supplies() {
             </p>
           </div>
         ) : (
-          <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
             {data.map((s) => (
               <Link key={s.id} to="/supplies/$slug" params={{ slug: s.slug }} className="group">
                 <div className="aspect-square overflow-hidden rounded-lg bg-muted">

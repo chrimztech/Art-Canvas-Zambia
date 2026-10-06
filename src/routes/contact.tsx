@@ -43,7 +43,7 @@ function Contact() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
 
-      <section className="mx-auto max-w-3xl px-4 pt-16 pb-10 text-center sm:px-6 lg:px-8">
+      <section className="page-container pt-16 pb-10 text-center">
         <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[0.68rem] uppercase tracking-[0.22em] text-primary">
           <MessageCircle className="h-3.5 w-3.5" />
           Contact
@@ -51,13 +51,13 @@ function Contact() {
         <h1 className="mt-6 font-display text-4xl leading-tight sm:text-5xl">
           We'd love to hear from you.
         </h1>
-        <p className="mt-5 text-base leading-7 text-muted-foreground sm:text-lg">
+        <p className="mx-auto mt-5 max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
           Questions about buying, selling, commissions, classes or your account — reach out and the
           team will get back to you.
         </p>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 pb-24 sm:px-6 lg:px-8">
+      <section className="page-container pb-24">
         <div className="grid gap-6 sm:grid-cols-3">
           <Card>
             <CardHeader>
