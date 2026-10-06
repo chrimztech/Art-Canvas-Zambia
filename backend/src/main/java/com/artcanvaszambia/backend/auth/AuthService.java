@@ -33,6 +33,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final SessionService sessionService;
+    private final com.artcanvaszambia.backend.notifications.NotificationService notificationService;
 
     private static final Set<String> SELF_ASSIGNABLE_ROLES = Set.of("ARTIST", "INSTRUCTOR", "SUPPLIER", "STUDENT");
 
@@ -67,6 +68,7 @@ public class AuthService {
 
         SessionEntity session = sessionService.create(user.getId(), ipAddress, userAgent, jwtService.computeExpiry());
         String token = jwtService.generateToken(user.getId(), user.getEmail(), session.getId());
+        notificationService.welcome(user, profile.getDisplayName());
         return new AuthResponse(token, user.getId(), user.getEmail(), profile.getDisplayName(),
                 roles.stream().map(Enum::name).collect(Collectors.toList()));
     }
@@ -88,8 +90,8 @@ public class AuthService {
     }
 
     public void logout() {
-        AppUserPrincipal principal = SecurityUtils.currentPrincipal();
-        if (principal.getSessionId() != null) {
+        AppUserPrincipal principal = SecurityUtils.currentPrincipalOrNull();
+        if (principal != null && principal.getSessionId() != null) {
             sessionService.revoke(principal.getSessionId());
         }
     }
@@ -107,12 +109,40 @@ public class AuthService {
         becomeRole(Role.ARTIST);
     }
 
+    /** Self-service opt-in to the creator roles (artist, instructor, supplier, student). */
+    @Transactional
+    public void becomeRole(String roleName) {
+        String normalized = roleName == null ? "" : roleName.trim().toUpperCase();
+        if (!SELF_ASSIGNABLE_ROLES.contains(normalized)) {
+            throw ApiException.badRequest("That role can't be self-assigned");
+        }
+        becomeRole(Role.valueOf(normalized));
+    }
+
     @Transactional
     public void becomeRole(Role role) {
         var principal = com.artcanvaszambia.backend.security.SecurityUtils.currentPrincipal();
         if (!userRoleRepository.existsByUserIdAndRole(principal.getId(), role)) {
             userRoleRepository.save(new UserRoleEntity(principal.getId(), role));
         }
+    }
+
+    /** Changes the password and signs out every other device. */
+    @Transactional
+    public void changePassword(String currentPassword, String newPassword) {
+        AppUserPrincipal principal = SecurityUtils.currentPrincipal();
+        User user = userRepository.findById(principal.getId())
+                .orElseThrow(() -> ApiException.notFound("Account not found"));
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw ApiException.badRequest("Your current password is incorrect");
+        }
+        if (passwordEncoder.matches(newPassword, user.getPasswordHash())) {
+            throw ApiException.badRequest("Choose a password you haven't used here before");
+        }
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        sessionService.revokeAllForUserExcept(user.getId(), principal.getSessionId());
+        notificationService.passwordChanged(user);
     }
 
     private String blankToNull(String value) {

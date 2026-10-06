@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { api, getAuthToken, setAuthToken } from "@/lib/api-client";
+import { useLoaderData } from "@tanstack/react-router";
+import { api, hasSession, setSessionHint } from "@/lib/api-client";
 
 export type AuthUser = {
   id: string;
@@ -8,40 +8,28 @@ export type AuthUser = {
   roles: string[];
 };
 
-async function fetchMe(): Promise<AuthUser | null> {
-  if (!getAuthToken()) return null;
+/**
+ * The signed-in user, or null. Used by the root route's loader, which runs during server rendering
+ * (forwarding the visitor's session cookie) and again on the client whenever auth changes.
+ */
+export async function fetchCurrentUser(): Promise<AuthUser | null> {
+  if (!hasSession()) return null;
   try {
     return await api.get<AuthUser>("/api/me");
   } catch {
-    setAuthToken(null);
     return null;
   }
 }
 
+/** The current user from the root loader: identical on the server render and the client's first render. */
 export function useAuth() {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const refresh = useCallback(() => {
-    setLoading(true);
-    fetchMe().then((u) => {
-      setUser(u);
-      setLoading(false);
-    });
-  }, []);
-
-  useEffect(() => {
-    refresh();
-    window.addEventListener("auth-changed", refresh);
-    return () => window.removeEventListener("auth-changed", refresh);
-  }, [refresh]);
-
-  return { user, loading, roles: user?.roles ?? [] };
+  const { user } = useLoaderData({ from: "__root__" }) as { user: AuthUser | null };
+  return { user, loading: false, roles: user?.roles ?? [] };
 }
 
 export async function login(email: string, password: string) {
-  const res = await api.post<AuthUser & { token: string }>("/api/auth/login", { email, password });
-  setAuthToken(res.token);
+  const res = await api.post<AuthUser>("/api/auth/login", { email, password });
+  setSessionHint(true);
   return res;
 }
 
@@ -52,7 +40,7 @@ export async function register(
   intendedRole?: string,
   extra?: { phone?: string; location?: string; bio?: string },
 ) {
-  const res = await api.post<AuthUser & { token: string }>("/api/auth/register", {
+  const res = await api.post<AuthUser>("/api/auth/register", {
     email,
     password,
     displayName,
@@ -61,7 +49,7 @@ export async function register(
     location: extra?.location,
     bio: extra?.bio,
   });
-  setAuthToken(res.token);
+  setSessionHint(true);
   return res;
 }
 
@@ -74,8 +62,8 @@ export async function logout() {
   try {
     await api.post("/api/auth/logout");
   } catch {
-    // token may already be invalid/expired - still clear it locally
+    // the session may already be gone — still clear local state
   } finally {
-    setAuthToken(null);
+    setSessionHint(false);
   }
 }

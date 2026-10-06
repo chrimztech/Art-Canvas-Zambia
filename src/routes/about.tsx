@@ -3,23 +3,51 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowRight, Palette, Handshake, GraduationCap, ShieldCheck, MapPin, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Palette,
+  Handshake,
+  GraduationCap,
+  ShieldCheck,
+  MapPin,
+  Sparkles,
+} from "lucide-react";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About — ChrisEpic Arts" },
-      { name: "description", content: "ChrisEpic Arts is Zambia's marketplace for original art, commissions, classes, exhibitions and supplies." },
+      {
+        name: "description",
+        content:
+          "ChrisEpic Arts is Zambia's marketplace for original art, commissions, classes, exhibitions and supplies.",
+      },
     ],
   }),
   component: About,
 });
 
 const VALUES = [
-  { icon: Palette, title: "Artist-first", desc: "Transparent, configurable payouts and low platform fees so artists keep more of every sale." },
-  { icon: Handshake, title: "Direct commissions", desc: "Buyers and artists work together directly — no middleman diluting the brief or the relationship." },
-  { icon: GraduationCap, title: "Skills, not just sales", desc: "Working artists teach classes and workshops, turning craft into a second income stream." },
-  { icon: ShieldCheck, title: "Trust & safety", desc: "Verified artist badges, moderated listings, and admin oversight keep the marketplace credible." },
+  {
+    icon: Palette,
+    title: "Artist-first",
+    desc: "Transparent, configurable payouts and low platform fees so artists keep more of every sale.",
+  },
+  {
+    icon: Handshake,
+    title: "Direct commissions",
+    desc: "Buyers and artists work together directly — no middleman diluting the brief or the relationship.",
+  },
+  {
+    icon: GraduationCap,
+    title: "Skills, not just sales",
+    desc: "Working artists teach classes and workshops, turning craft into a second income stream.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Trust & safety",
+    desc: "Verified artist badges, moderated listings, and admin oversight keep the marketplace credible.",
+  },
 ];
 
 function About() {
@@ -36,8 +64,9 @@ function About() {
           Zambia's home for original art, <em className="text-primary">made and sold direct.</em>
         </h1>
         <p className="mt-5 text-base leading-7 text-muted-foreground sm:text-lg">
-          ChrisEpic Arts connects Zambian artists, instructors and suppliers directly with collectors, students and
-          buyers — one platform for paintings, sculpture, commissions, classes, exhibitions and art supplies.
+          ChrisEpic Arts connects Zambian artists, instructors and suppliers directly with
+          collectors, students and buyers — one platform for paintings, sculpture, commissions,
+          classes, exhibitions and art supplies.
         </p>
       </section>
 
@@ -67,14 +96,23 @@ function About() {
                 <MapPin className="h-3.5 w-3.5 text-primary" />
                 Based in Lusaka, Zambia
               </div>
-              <h2 className="mt-3 font-display text-2xl sm:text-3xl">Building it in the open, for Zambian creatives.</h2>
+              <h2 className="mt-3 font-display text-2xl sm:text-3xl">
+                Building it in the open, for Zambian creatives.
+              </h2>
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                Have a question, a partnership idea, or feedback on the platform? We'd like to hear from you.
+                Have a question, a partnership idea, or feedback on the platform? We'd like to hear
+                from you.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button asChild><Link to="/contact">Contact us <ArrowRight className="h-4 w-4" /></Link></Button>
-              <Button variant="outline" asChild><Link to="/sell">Sell on ChrisEpic Arts</Link></Button>
+              <Button asChild>
+                <Link to="/contact">
+                  Contact us <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/sell">Sell on ChrisEpic Arts</Link>
+              </Button>
             </div>
           </CardContent>
         </Card>

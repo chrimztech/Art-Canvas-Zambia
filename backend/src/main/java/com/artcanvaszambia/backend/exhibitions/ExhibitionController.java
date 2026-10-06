@@ -1,5 +1,7 @@
 package com.artcanvaszambia.backend.exhibitions;
 
+import com.artcanvaszambia.backend.admin.dto.StatusUpdateRequest;
+import com.artcanvaszambia.backend.common.dto.AttendeeDto;
 import com.artcanvaszambia.backend.exhibitions.dto.ExhibitionDto;
 import com.artcanvaszambia.backend.exhibitions.dto.ExhibitionRequest;
 import com.artcanvaszambia.backend.exhibitions.dto.TicketDto;
@@ -60,6 +62,16 @@ public class ExhibitionController {
     public CheckoutResponse checkout(@PathVariable UUID id, @RequestParam(defaultValue = "1") int quantity,
                                       @Valid @RequestBody CheckoutRequest req) {
         return checkoutService.checkoutSingleItem(OrderItem.EXHIBITION, id, quantity, req);
+    }
+
+    @PatchMapping("/api/exhibitions/{id}/status")
+    public ExhibitionDto updateStatus(@PathVariable UUID id, @Valid @RequestBody StatusUpdateRequest req) {
+        return exhibitionService.updateStatus(id, req.status());
+    }
+
+    @GetMapping("/api/exhibitions/{id}/attendees")
+    public List<AttendeeDto> attendees(@PathVariable UUID id) {
+        return exhibitionService.attendees(id);
     }
 
     @PostMapping("/api/exhibitions/tickets/{id}/check-in")

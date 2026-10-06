@@ -40,6 +40,9 @@ public record ArtworkDetailDto(
         String shippingNotes,
         boolean readyToHang,
         String originCity,
-        String originCountry
+        String originCountry,
+        String categoryName,
+        String artistLocation,
+        boolean artistVerified
 ) {
 }

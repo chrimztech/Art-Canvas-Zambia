@@ -13,6 +13,7 @@ public record ClassDto(
         String coverImageUrl,
         String mode,
         String location,
+        // Only revealed to the instructor, admins and confirmed students.
         String meetingUrl,
         Instant startsAt,
         Instant endsAt,
@@ -25,6 +26,9 @@ public record ClassDto(
         String prerequisites,
         String syllabus,
         List<String> tags,
-        boolean materialsIncluded
+        boolean materialsIncluded,
+        long enrolledCount,
+        // True when the current viewer already holds a confirmed seat.
+        boolean enrolled
 ) {
 }

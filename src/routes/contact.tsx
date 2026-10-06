@@ -28,10 +28,12 @@ function Contact() {
           <MessageCircle className="h-3.5 w-3.5" />
           Contact
         </div>
-        <h1 className="mt-6 font-display text-4xl leading-tight sm:text-5xl">We'd love to hear from you.</h1>
+        <h1 className="mt-6 font-display text-4xl leading-tight sm:text-5xl">
+          We'd love to hear from you.
+        </h1>
         <p className="mt-5 text-base leading-7 text-muted-foreground sm:text-lg">
-          Questions about buying, selling, commissions, classes or your account — reach out and the team will get back
-          to you.
+          Questions about buying, selling, commissions, classes or your account — reach out and the
+          team will get back to you.
         </p>
       </section>
 
@@ -82,9 +84,12 @@ function Contact() {
           <CardHeader>
             <CardTitle>Prefer email?</CardTitle>
             <CardDescription>
-              Send us a message at <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary hover:underline">{CONTACT_EMAIL}</a> with
-              as much detail as you can — your account email, order or listing reference, and what you need help with.
-              We typically reply within 1–2 business days.
+              Send us a message at{" "}
+              <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary hover:underline">
+                {CONTACT_EMAIL}
+              </a>{" "}
+              with as much detail as you can — your account email, order or listing reference, and
+              what you need help with. We typically reply within 1–2 business days.
             </CardDescription>
           </CardHeader>
         </Card>

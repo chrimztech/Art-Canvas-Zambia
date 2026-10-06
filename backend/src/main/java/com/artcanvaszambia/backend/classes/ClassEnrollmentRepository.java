@@ -2,6 +2,7 @@ package com.artcanvaszambia.backend.classes;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,7 +10,15 @@ import java.util.UUID;
 public interface ClassEnrollmentRepository extends JpaRepository<ClassEnrollment, UUID> {
     boolean existsByClassIdAndStudentId(UUID classId, UUID studentId);
 
+    boolean existsByClassIdAndStudentIdAndStatusIn(UUID classId, UUID studentId, Collection<String> statuses);
+
+    long countByClassIdAndStatusIn(UUID classId, Collection<String> statuses);
+
+    Optional<ClassEnrollment> findByClassIdAndStudentId(UUID classId, UUID studentId);
+
     List<ClassEnrollment> findByClassId(UUID classId);
+
+    List<ClassEnrollment> findByClassIdOrderByCreatedAtAsc(UUID classId);
 
     List<ClassEnrollment> findByStudentIdOrderByCreatedAtDesc(UUID studentId);
 

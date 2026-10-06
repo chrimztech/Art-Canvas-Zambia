@@ -14,7 +14,9 @@ function Sell() {
       <SiteHeader />
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
         <h1 className="font-display text-5xl font-semibold">Sell your art on ChrisEpic Arts</h1>
-        <p className="mt-4 text-lg text-muted-foreground">Reach collectors across Zambia. Get paid in Kwacha. Keep most of every sale.</p>
+        <p className="mt-4 text-lg text-muted-foreground">
+          Reach collectors across Zambia. Get paid in Kwacha. Keep most of every sale.
+        </p>
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
           {[
             { n: "1", t: "Create an account", d: "Sign up and enable your artist profile." },
@@ -28,7 +30,9 @@ function Sell() {
             </div>
           ))}
         </div>
-        <Button size="lg" className="mt-10" asChild><Link to="/auth">Get started</Link></Button>
+        <Button size="lg" className="mt-10" asChild>
+          <Link to="/auth">Get started</Link>
+        </Button>
       </div>
       <SiteFooter />
     </div>

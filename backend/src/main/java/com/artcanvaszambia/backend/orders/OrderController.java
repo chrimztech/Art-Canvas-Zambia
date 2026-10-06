@@ -5,6 +5,7 @@ import com.artcanvaszambia.backend.orders.dto.CheckoutResponse;
 import com.artcanvaszambia.backend.orders.dto.OrderDetailDto;
 import com.artcanvaszambia.backend.orders.dto.OrderSummaryDto;
 import com.artcanvaszambia.backend.orders.dto.SaleDto;
+import com.artcanvaszambia.backend.orders.dto.ShipItemRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -41,5 +42,15 @@ public class OrderController {
     @GetMapping("/api/me/sales")
     public List<SaleDto> mySales() {
         return orderService.mySales();
+    }
+
+    @PostMapping("/api/me/sales/{itemId}/ship")
+    public void markShipped(@PathVariable UUID itemId, @RequestBody(required = false) ShipItemRequest req) {
+        orderService.markShipped(itemId, req);
+    }
+
+    @PostMapping("/api/orders/{orderId}/items/{itemId}/received")
+    public OrderDetailDto confirmReceived(@PathVariable UUID orderId, @PathVariable UUID itemId) {
+        return orderService.confirmReceived(orderId, itemId);
     }
 }

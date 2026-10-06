@@ -1,8 +1,10 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useAuth, logout } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, User as UserIcon, LogOut } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { Heart, MessageCircle, ShoppingBag, User as UserIcon, LogOut } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api-client";
+import type { CartItem } from "@/lib/types";
 import logoAsset from "@/assets/logo.png";
 
 const NAV_ITEMS = [
@@ -18,6 +20,20 @@ export function SiteHeader() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { data: cart = [] } = useQuery({
+    queryKey: ["cart"],
+    queryFn: () => api.get<CartItem[]>("/api/cart"),
+    enabled: !!user,
+    staleTime: 30_000,
+  });
+  const cartCount = cart.reduce((n, i) => n + i.quantity, 0);
+  const { data: unread } = useQuery({
+    queryKey: ["unread-messages"],
+    queryFn: () => api.get<{ count: number }>("/api/me/messages/unread-count"),
+    enabled: !!user,
+    refetchInterval: 60_000,
+  });
+  const unreadCount = unread?.count ?? 0;
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -45,7 +61,7 @@ export function SiteHeader() {
               <div className="rounded-2xl border border-border/70 bg-background/75 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
                 <img src={logoAsset} alt="ChrisEpic Arts" className="h-10 w-auto" />
               </div>
-              <div className="hidden sm:block">
+              <div className="hidden whitespace-nowrap sm:block lg:hidden xl:block">
                 <div className="font-display text-xl leading-none">ChrisEpic Arts</div>
                 <div className="mt-1 text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
                   Collector's marketplace
@@ -53,12 +69,12 @@ export function SiteHeader() {
               </div>
             </Link>
 
-            <nav className="hidden min-w-0 items-center gap-2 rounded-full border border-border/60 bg-background/45 p-2 md:flex">
+            <nav className="hidden min-w-0 items-center gap-1 rounded-full border border-border/60 bg-background/45 p-1.5 lg:flex">
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.to}
                   to={item.to}
-                  className="rounded-full px-4 py-2 text-sm font-medium text-foreground/76 transition-all hover:bg-secondary/80 hover:text-foreground"
+                  className="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium text-foreground/76 transition-all hover:bg-secondary/80 hover:text-foreground 2xl:px-4"
                   activeProps={{
                     className:
                       "bg-primary text-primary-foreground shadow-[0_12px_24px_rgba(0,0,0,0.18)]",
@@ -70,10 +86,37 @@ export function SiteHeader() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" asChild>
-              <Link to="/cart" aria-label="Cart">
+          <div className="flex shrink-0 items-center gap-2">
+            {user && (
+              <Button variant="ghost" size="icon" asChild className="relative">
+                <Link
+                  to="/messages"
+                  aria-label={unreadCount ? `Messages, ${unreadCount} unread` : "Messages"}
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[0.65rem] font-semibold text-primary-foreground">
+                      {unreadCount}
+                    </span>
+                  )}
+                </Link>
+              </Button>
+            )}
+            {user && (
+              <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex">
+                <Link to="/favorites" aria-label="Favorites">
+                  <Heart className="h-5 w-5" />
+                </Link>
+              </Button>
+            )}
+            <Button variant="outline" size="icon" asChild className="relative">
+              <Link to="/cart" aria-label={cartCount ? `Cart, ${cartCount} items` : "Cart"}>
                 <ShoppingBag className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[0.65rem] font-semibold text-primary-foreground">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
             </Button>
             {user ? (
@@ -84,7 +127,7 @@ export function SiteHeader() {
                     Dashboard
                   </Link>
                 </Button>
-                <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+                <Button variant="ghost" size="sm" asChild className="hidden 2xl:inline-flex">
                   <Link to="/dashboard/profile">Profile</Link>
                 </Button>
                 <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out">
@@ -99,7 +142,7 @@ export function SiteHeader() {
           </div>
         </div>
 
-        <nav className="mt-3 flex gap-2 overflow-x-auto pb-1 md:hidden">
+        <nav className="mt-3 flex gap-2 overflow-x-auto pb-1 lg:hidden">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.to}

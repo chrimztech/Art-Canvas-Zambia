@@ -11,6 +11,15 @@ public record CheckoutRequest(
         String city,
         String state,
         String zipCode,
-        String country
+        String country,
+        // Delivery for physical goods: "delivery" (default) or "pickup" from the seller.
+        String deliveryMethod,
+        String shippingName,
+        String shippingPhone,
+        String shippingAddress,
+        String shippingCity,
+        String shippingNotes,
+        // Mobile network for mobile-money payments (airtel | mtn | zamtel); inferred from the number when blank.
+        String operator
 ) {
 }

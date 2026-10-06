@@ -37,6 +37,7 @@ class ZynlePayWebhookService {
     private final OrderRepository orderRepository;
     private final PayoutRequestRepository payoutRequestRepository;
     private final OrderFulfillmentService orderFulfillmentService;
+    private final com.artcanvaszambia.backend.notifications.NotificationService notificationService;
 
     @Value("${app.zynlepay.webhook-token}")
     private String webhookToken;
@@ -58,15 +59,15 @@ class ZynlePayWebhookService {
         var orderOpt = orderRepository.findByOrderNumber(referenceNo);
         if (orderOpt.isPresent()) {
             Order order = orderOpt.get();
-            if (success) {
-                order.setStatus(Order.PAID);
-            } else if (failed) {
-                order.setStatus(Order.CANCELLED);
-            }
             if (operatorReference != null) order.setPaymentReference(operatorReference);
-            orderRepository.save(order);
             if (success) {
-                orderFulfillmentService.fulfill(order);
+                orderFulfillmentService.markPaid(order);
+            } else if (failed && Order.PENDING.equals(order.getStatus())) {
+                // Never downgrade an order that has already been confirmed as paid.
+                order.setStatus(Order.CANCELLED);
+                orderRepository.save(order);
+            } else {
+                orderRepository.save(order);
             }
             return;
         }
@@ -81,6 +82,7 @@ class ZynlePayWebhookService {
             }
             if (operatorReference != null) payout.setOperatorReference(operatorReference);
             payoutRequestRepository.save(payout);
+            notificationService.payoutUpdated(payout);
             return;
         }
 

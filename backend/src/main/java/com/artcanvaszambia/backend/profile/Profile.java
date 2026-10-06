@@ -71,6 +71,23 @@ public class Profile {
     @Column(name = "payout_receiver_id")
     private String payoutReceiverId;
 
+
+    @Column(name = "shop_announcement")
+    private String shopAnnouncement;
+
+    /** While on, the seller's artworks and supplies can't be bought. */
+    @Column(name = "vacation_mode", nullable = false)
+    private boolean vacationMode = false;
+
+    @Column(name = "vacation_message")
+    private String vacationMessage;
+
+    @Column(name = "return_policy")
+    private String returnPolicy;
+
+    @Column(name = "verification_requested_at")
+    private Instant verificationRequestedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 

@@ -37,8 +37,8 @@ export function SiteFooter() {
                 A sharper digital home for Zambian artists, collectors, and creative businesses.
               </h2>
               <p className="mt-4 max-w-lg text-sm leading-7 text-muted-foreground sm:text-base">
-                ChrisEpic Arts brings original work, exhibitions, commissions, classes, and supplies into one polished
-                marketplace built to feel credible, modern, and artist-first.
+                ChrisEpic Arts brings original work, exhibitions, commissions, classes, and supplies
+                into one polished marketplace built to feel credible, modern, and artist-first.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button asChild>
@@ -52,14 +52,22 @@ export function SiteFooter() {
                 </Button>
               </div>
               <div className="mt-6 flex flex-wrap gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                <span className="rounded-full border border-border/70 bg-background/50 px-3 py-2">Curated listings</span>
-                <span className="rounded-full border border-border/70 bg-background/50 px-3 py-2">Secure admin controls</span>
-                <span className="rounded-full border border-border/70 bg-background/50 px-3 py-2">Artist-first payouts</span>
+                <span className="rounded-full border border-border/70 bg-background/50 px-3 py-2">
+                  Curated listings
+                </span>
+                <span className="rounded-full border border-border/70 bg-background/50 px-3 py-2">
+                  Secure admin controls
+                </span>
+                <span className="rounded-full border border-border/70 bg-background/50 px-3 py-2">
+                  Artist-first payouts
+                </span>
               </div>
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80">Discover</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80">
+                Discover
+              </h3>
               <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
                 {FOOTER_LINKS.discover.map((link) => (
                   <li key={link.label}>
@@ -72,7 +80,9 @@ export function SiteFooter() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80">Create & earn</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80">
+                Create & earn
+              </h3>
               <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
                 {FOOTER_LINKS.create.map((link) => (
                   <li key={link.label}>
@@ -85,7 +95,9 @@ export function SiteFooter() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80">Support</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80">
+                Support
+              </h3>
               <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
                 {FOOTER_LINKS.support.map((link) => (
                   <li key={link.label}>

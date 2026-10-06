@@ -4,9 +4,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -51,6 +54,28 @@ public class Order {
 
     @Column(name = "payment_reference")
     private String paymentReference;
+
+    /** Delivery details captured at checkout: method, name, phone, address, city, notes. */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "shipping_address", columnDefinition = "jsonb")
+    private Map<String, String> shippingAddress;
+
+
+    @Column(name = "discount_zmw", nullable = false, precision = 12, scale = 2)
+    private BigDecimal discountZmw = BigDecimal.ZERO;
+
+    @Column(name = "shipping_zmw", nullable = false, precision = 12, scale = 2)
+    private BigDecimal shippingZmw = BigDecimal.ZERO;
+
+    /** Portion of the order paid with a gift card (the rest is charged through the gateway). */
+    @Column(name = "gift_card_zmw", nullable = false, precision = 12, scale = 2)
+    private BigDecimal giftCardZmw = BigDecimal.ZERO;
+
+    @Column(name = "coupon_code")
+    private String couponCode;
+
+    @Column(name = "gift_card_id")
+    private UUID giftCardId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();

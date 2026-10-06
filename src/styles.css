@@ -90,7 +90,9 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
+  * {
+    border-color: var(--color-border);
+  }
   html {
     background-color: var(--color-background);
   }
@@ -100,10 +102,26 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     background-image:
-      radial-gradient(circle at top left, color-mix(in oklab, var(--color-primary) 24%, transparent) 0, transparent 34%),
-      radial-gradient(circle at 88% 12%, color-mix(in oklab, var(--color-primary) 12%, transparent) 0, transparent 24%),
-      radial-gradient(circle at 50% 100%, color-mix(in oklab, var(--color-accent) 16%, transparent) 0, transparent 32%),
-      linear-gradient(180deg, color-mix(in oklab, var(--color-card) 40%, transparent), transparent 28%),
+      radial-gradient(
+        circle at top left,
+        color-mix(in oklab, var(--color-primary) 24%, transparent) 0,
+        transparent 34%
+      ),
+      radial-gradient(
+        circle at 88% 12%,
+        color-mix(in oklab, var(--color-primary) 12%, transparent) 0,
+        transparent 24%
+      ),
+      radial-gradient(
+        circle at 50% 100%,
+        color-mix(in oklab, var(--color-accent) 16%, transparent) 0,
+        transparent 32%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--color-card) 40%, transparent),
+        transparent 28%
+      ),
       linear-gradient(180deg, oklch(0.18 0.01 52), oklch(0.14 0.008 48));
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";
@@ -120,16 +138,32 @@
   }
   body::before {
     background-image:
-      linear-gradient(to right, color-mix(in oklab, var(--color-border) 38%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in oklab, var(--color-border) 30%, transparent) 1px, transparent 1px);
+      linear-gradient(
+        to right,
+        color-mix(in oklab, var(--color-border) 38%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--color-border) 30%, transparent) 1px,
+        transparent 1px
+      );
     background-size: 120px 120px;
     mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.22), transparent 78%);
     opacity: 0.2;
   }
   body::after {
     background:
-      radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--color-primary) 14%, transparent), transparent 22rem),
-      radial-gradient(circle at 80% 0%, color-mix(in oklab, white 7%, transparent), transparent 18rem);
+      radial-gradient(
+        circle at 20% 20%,
+        color-mix(in oklab, var(--color-primary) 14%, transparent),
+        transparent 22rem
+      ),
+      radial-gradient(
+        circle at 80% 0%,
+        color-mix(in oklab, white 7%, transparent),
+        transparent 18rem
+      );
     filter: blur(18px);
     opacity: 0.72;
   }
@@ -137,7 +171,10 @@
     background: color-mix(in oklab, var(--color-primary) 45%, transparent);
     color: var(--color-primary-foreground);
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     letter-spacing: -0.015em;
     font-weight: 400;

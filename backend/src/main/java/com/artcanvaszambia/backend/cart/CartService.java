@@ -42,13 +42,15 @@ public class CartService {
             if (CartItem.SUPPLY.equals(i.getItemType())) {
                 Supply s = supplies.get(i.getItemId());
                 if (s == null) return null;
+                boolean available = Supply.PUBLISHED.equals(s.getStatus()) && s.getStock() >= i.getQuantity();
                 return new CartItemDto(i.getId(), i.getQuantity(), CartItem.SUPPLY, s.getId(), null,
-                        s.getName(), s.getSlug(), s.getPriceZmw(), s.getCoverImageUrl());
+                        s.getName(), s.getSlug(), s.getPriceZmw(), s.getCoverImageUrl(), available, Math.max(s.getStock(), 1));
             }
             Artwork a = artworks.get(i.getItemId());
             if (a == null) return null;
             return new CartItemDto(i.getId(), i.getQuantity(), CartItem.ARTWORK, a.getId(), a.getId(),
-                    a.getTitle(), a.getSlug(), a.getPriceZmw(), a.getCoverImageUrl());
+                    a.getTitle(), a.getSlug(), a.getPriceZmw(), a.getCoverImageUrl(),
+                    Artwork.PUBLISHED.equals(a.getStatus()), maxArtworkQuantity(a));
         }).filter(java.util.Objects::nonNull).toList();
     }
 
@@ -57,13 +59,14 @@ public class CartService {
         UUID userId = SecurityUtils.currentUserId();
         String itemType = normalizeItemType(req.itemType());
         UUID itemId = req.itemId();
+        int quantity = req.quantity() > 0 ? req.quantity() : 1;
 
         if (CartItem.SUPPLY.equals(itemType)) {
-            if (!supplyRepository.existsById(itemId)) {
-                throw ApiException.notFound("Supply not found");
-            }
-        } else if (!artworkRepository.existsById(itemId)) {
-            throw ApiException.notFound("Artwork not found");
+            Supply s = supplyRepository.findById(itemId).orElseThrow(() -> ApiException.notFound("Supply not found"));
+            requireSupplyAvailable(s, userId, quantity);
+        } else {
+            Artwork a = artworkRepository.findById(itemId).orElseThrow(() -> ApiException.notFound("Artwork not found"));
+            requireArtworkAvailable(a, userId, quantity);
         }
 
         CartItem item = cartItemRepository.findByUserIdAndItemTypeAndItemId(userId, itemType, itemId)
@@ -77,7 +80,25 @@ public class CartService {
                     }
                     return c;
                 });
-        item.setQuantity(req.quantity());
+        item.setQuantity(quantity);
+        cartItemRepository.save(item);
+    }
+
+    @Transactional
+    public void updateQuantity(UUID id, int quantity) {
+        UUID userId = SecurityUtils.currentUserId();
+        CartItem item = cartItemRepository.findById(id).orElseThrow(() -> ApiException.notFound("Cart item not found"));
+        if (!item.getUserId().equals(userId)) {
+            throw ApiException.forbidden("Not your cart item");
+        }
+        if (CartItem.SUPPLY.equals(item.getItemType())) {
+            Supply s = supplyRepository.findById(item.getItemId()).orElseThrow(() -> ApiException.notFound("Supply not found"));
+            requireSupplyAvailable(s, userId, quantity);
+        } else {
+            Artwork a = artworkRepository.findById(item.getItemId()).orElseThrow(() -> ApiException.notFound("Artwork not found"));
+            requireArtworkAvailable(a, userId, quantity);
+        }
+        item.setQuantity(quantity);
         cartItemRepository.save(item);
     }
 
@@ -89,6 +110,40 @@ public class CartService {
             throw ApiException.forbidden("Not your cart item");
         }
         cartItemRepository.delete(item);
+    }
+
+    /** Shared with checkout so the cart and the payment step enforce identical rules. */
+    public static void requireArtworkAvailable(Artwork a, UUID buyerId, int quantity) {
+        if (a.getArtistId().equals(buyerId)) {
+            throw ApiException.badRequest("You can't buy your own artwork");
+        }
+        if (!Artwork.PUBLISHED.equals(a.getStatus())) {
+            throw ApiException.badRequest("\"" + a.getTitle() + "\" is no longer available");
+        }
+        if (quantity > maxArtworkQuantity(a)) {
+            throw ApiException.badRequest(a.isOriginal()
+                    ? "\"" + a.getTitle() + "\" is a one-of-a-kind original"
+                    : "Only " + maxArtworkQuantity(a) + " prints of \"" + a.getTitle() + "\" are available");
+        }
+    }
+
+    public static void requireSupplyAvailable(Supply s, UUID buyerId, int quantity) {
+        if (s.getSellerId().equals(buyerId)) {
+            throw ApiException.badRequest("You can't buy your own listing");
+        }
+        if (!Supply.PUBLISHED.equals(s.getStatus())) {
+            throw ApiException.badRequest("\"" + s.getName() + "\" is no longer available");
+        }
+        if (quantity > s.getStock()) {
+            throw ApiException.badRequest(s.getStock() <= 0
+                    ? "\"" + s.getName() + "\" is out of stock"
+                    : "Only " + s.getStock() + " of \"" + s.getName() + "\" left in stock");
+        }
+    }
+
+    private static int maxArtworkQuantity(Artwork a) {
+        if (a.isOriginal()) return 1;
+        return a.getEditionSize() != null && a.getEditionSize() > 0 ? a.getEditionSize() : 10;
     }
 
     private String normalizeItemType(String itemType) {

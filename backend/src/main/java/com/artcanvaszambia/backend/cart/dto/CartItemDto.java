@@ -12,6 +12,10 @@ public record CartItemDto(
         String title,
         String slug,
         BigDecimal priceZmw,
-        String coverImageUrl
+        String coverImageUrl,
+        // False once the item has sold, been unpublished or run out of stock; checkout will refuse it.
+        boolean available,
+        // Upper bound for the quantity selector (1 for original artworks, remaining stock for supplies).
+        int maxQuantity
 ) {
 }

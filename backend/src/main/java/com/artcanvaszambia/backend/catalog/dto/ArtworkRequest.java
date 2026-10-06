@@ -33,6 +33,10 @@ public record ArtworkRequest(
         String shippingNotes,
         Boolean readyToHang,
         String originCity,
-        String originCountry
+        String originCountry,
+        // Optional gallery images (cover excluded); when non-null they replace the existing gallery.
+        List<String> imageUrls,
+        // Optional initial/updated listing status: "draft" or "published" (defaults to published on create).
+        String status
 ) {
 }

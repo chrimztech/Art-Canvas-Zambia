@@ -71,6 +71,11 @@ public class Supply {
     @Column(name = "tags", columnDefinition = "text[]")
     private List<String> tags = new ArrayList<>();
 
+
+    /** Flat delivery fee per order line when the buyer chooses delivery (0 = free delivery). */
+    @Column(name = "shipping_fee_zmw", nullable = false, precision = 12, scale = 2)
+    private java.math.BigDecimal shippingFeeZmw = java.math.BigDecimal.ZERO;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 

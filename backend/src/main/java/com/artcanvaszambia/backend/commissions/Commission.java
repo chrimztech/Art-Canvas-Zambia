@@ -4,10 +4,14 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -47,6 +51,13 @@ public class Commission {
     private BigDecimal quotedPriceZmw;
 
     private LocalDate deadline;
+
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "reference_image_urls", columnDefinition = "text[]")
+    private List<String> referenceImageUrls = new ArrayList<>();
+
+    @Column(name = "artist_note")
+    private String artistNote;
 
     @Column(nullable = false)
     private String status = REQUESTED;

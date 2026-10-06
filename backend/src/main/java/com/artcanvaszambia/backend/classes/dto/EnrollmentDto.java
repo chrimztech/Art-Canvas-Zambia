@@ -14,6 +14,11 @@ public record EnrollmentDto(
         Instant endsAt,
         String status,
         BigDecimal amountPaidZmw,
-        Instant createdAt
+        Instant createdAt,
+        String mode,
+        String location,
+        // Only revealed to confirmed students.
+        String meetingUrl,
+        String instructorDisplayName
 ) {
 }

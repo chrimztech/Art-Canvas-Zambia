@@ -1,5 +1,6 @@
 package com.artcanvaszambia.backend.supplies;
 
+import com.artcanvaszambia.backend.admin.dto.StatusUpdateRequest;
 import com.artcanvaszambia.backend.supplies.dto.SupplyDetailDto;
 import com.artcanvaszambia.backend.supplies.dto.SupplyImageRequest;
 import com.artcanvaszambia.backend.supplies.dto.SupplyRequest;
@@ -44,6 +45,11 @@ public class SupplyController {
     @DeleteMapping("/api/supplies/{id}")
     public void delete(@PathVariable UUID id) {
         supplyService.delete(id);
+    }
+
+    @PatchMapping("/api/supplies/{id}/status")
+    public SupplySummaryDto updateStatus(@PathVariable UUID id, @Valid @RequestBody StatusUpdateRequest req) {
+        return supplyService.updateStatus(id, req.status());
     }
 
     @PostMapping("/api/supplies/{id}/images")

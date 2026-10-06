@@ -94,6 +94,17 @@ public class SessionService {
                 });
     }
 
+    @Transactional
+    public void revokeAllForUserExcept(UUID userId, UUID keepSessionId) {
+        sessionRepository.findByUserIdOrderByLastSeenAtDesc(userId).stream()
+                .filter(SessionEntity::isActive)
+                .filter(session -> !session.getId().equals(keepSessionId))
+                .forEach(session -> {
+                    session.setRevokedAt(Instant.now());
+                    sessionRepository.save(session);
+                });
+    }
+
     private SessionDto toDto(SessionEntity s, UUID currentSessionId) {
         return new SessionDto(s.getId(), s.getUserId(), null, null, s.getIpAddress(), s.getUserAgent(),
                 s.getCreatedAt(), s.getLastSeenAt(), s.getExpiresAt(), s.getId().equals(currentSessionId), s.isActive());

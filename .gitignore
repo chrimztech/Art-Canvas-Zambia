@@ -30,3 +30,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Backend build output and user-uploaded files (never commit)
+backend/target/
+backend/uploads/

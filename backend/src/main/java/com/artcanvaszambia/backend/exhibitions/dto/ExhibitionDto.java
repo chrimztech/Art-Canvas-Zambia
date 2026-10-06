@@ -25,6 +25,7 @@ public record ExhibitionDto(
         List<String> tags,
         String contactEmail,
         String contactPhone,
-        boolean isFeatured
+        boolean isFeatured,
+        long ticketsSold
 ) {
 }

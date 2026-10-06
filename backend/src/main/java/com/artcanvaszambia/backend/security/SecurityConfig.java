@@ -75,6 +75,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Not signed in (or the session expired) is 401, distinct from 403 "signed in but not allowed".
+                .exceptionHandling(e -> e.authenticationEntryPoint((request, response, ex) -> {
+                    response.setStatus(401);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\":\"You must be signed in\"}");
+                }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
@@ -86,7 +92,9 @@ public class SecurityConfig {
                                 "/api/artists/**",
                                 "/api/supplies/**",
                                 "/api/classes/**",
-                                "/api/exhibitions/**"
+                                "/api/exhibitions/**",
+                                "/api/reviews/seller/**",
+                                "/api/reviews/listing/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

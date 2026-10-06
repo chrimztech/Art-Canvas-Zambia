@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,8 +15,13 @@ public class ArtworkController {
     private final ArtworkService artworkService;
 
     @GetMapping("/api/artworks")
-    public List<ArtworkSummaryDto> list(@RequestParam(required = false) UUID categoryId) {
-        return artworkService.listPublished(categoryId);
+    public List<ArtworkSummaryDto> list(@RequestParam(required = false) String q,
+                                        @RequestParam(required = false) UUID categoryId,
+                                        @RequestParam(required = false) BigDecimal minPrice,
+                                        @RequestParam(required = false) BigDecimal maxPrice,
+                                        @RequestParam(required = false) String sort,
+                                        @RequestParam(defaultValue = "false") boolean available) {
+        return artworkService.search(q, categoryId, minPrice, maxPrice, sort, available);
     }
 
     @GetMapping("/api/artworks/{slug}")

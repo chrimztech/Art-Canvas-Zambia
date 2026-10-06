@@ -11,6 +11,15 @@ public record ArtistDetailDto(
         String location,
         String website,
         String instagram,
-        List<ArtworkSummaryDto> artworks
+        List<ArtworkSummaryDto> artworks,
+        String coverImageUrl,
+        String facebookUrl,
+        String twitterUrl,
+        String tiktokUrl,
+        List<String> specialties,
+        Integer yearsExperience,
+        boolean verified,
+        double averageRating,
+        long reviewCount
 ) {
 }

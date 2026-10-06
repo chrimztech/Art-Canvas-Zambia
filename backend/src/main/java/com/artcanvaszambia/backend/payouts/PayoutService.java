@@ -7,6 +7,9 @@ import com.artcanvaszambia.backend.orders.OrderItemRepository;
 import com.artcanvaszambia.backend.orders.OrderRepository;
 import com.artcanvaszambia.backend.orders.PlatformSettings;
 import com.artcanvaszambia.backend.orders.PlatformSettingsRepository;
+import com.artcanvaszambia.backend.payments.LencoClient;
+import com.artcanvaszambia.backend.payments.LencoResult;
+import com.artcanvaszambia.backend.payments.PaymentProviders;
 import com.artcanvaszambia.backend.payments.ZynlePayClient;
 import com.artcanvaszambia.backend.payments.ZynlePayResult;
 import com.artcanvaszambia.backend.payouts.dto.AvailableBalanceDto;
@@ -37,6 +40,9 @@ public class PayoutService {
     private final ProfileRepository profileRepository;
     private final PlatformSettingsRepository platformSettingsRepository;
     private final ZynlePayClient zynlePayClient;
+    private final LencoClient lencoClient;
+    private final PaymentProviders paymentProviders;
+    private final com.artcanvaszambia.backend.notifications.NotificationService notificationService;
 
     private static final Set<String> PAID_ORDER_STATUSES = Set.of(Order.PAID, Order.FULFILLED);
     private static final Set<String> RESERVED_PAYOUT_STATUSES = Set.of(
@@ -50,7 +56,7 @@ public class PayoutService {
                 .map(Order::getId).collect(java.util.stream.Collectors.toSet());
 
         BigDecimal totalEarned = items.stream()
-                .filter(i -> paidOrderIds.contains(i.getOrderId()))
+                .filter(i -> paidOrderIds.contains(i.getOrderId()) && i.getRefundedAt() == null)
                 .map(OrderItem::getArtistPayoutZmw)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -111,6 +117,7 @@ public class PayoutService {
         List<OrderItem> items = orderItemRepository.findByOrderIdIn(paidOrders.stream().map(Order::getId).toList());
 
         BigDecimal totalEarned = items.stream()
+                .filter(i -> i.getRefundedAt() == null)
                 .map(PayoutRequest.PAYEE_DEVELOPER.equals(payeeType) ? OrderItem::getRoyaltyZmw : OrderItem::getPlatformFeeZmw)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -185,6 +192,9 @@ public class PayoutService {
         if (!PayoutRequest.REQUESTED.equals(p.getStatus())) {
             throw ApiException.badRequest("Only requested payouts can be approved");
         }
+        if (PaymentProviders.LENCO.equals(paymentProviders.active())) {
+            return approveViaLenco(p);
+        }
         ZynlePayResult result = "momo".equals(p.getMethod())
                 ? zynlePayClient.momoWithdraw(p.getPhone(), p.getReferenceNo(), p.getAmountZmw())
                 : zynlePayClient.walletToBank(p.getReceiverId(), p.getBankName(), p.getReferenceNo(),
@@ -198,7 +208,49 @@ public class PayoutService {
             p.setAdminNote(result.description() != null ? result.description() : "Payout could not be started");
         }
         payoutRequestRepository.save(p);
+        notificationService.payoutUpdated(p);
         return toDto(p);
+    }
+
+    private PayoutRequestDto approveViaLenco(PayoutRequest p) {
+        String narration = "ChrisEpic Arts payout " + p.getReferenceNo();
+        // Gateway/validation errors propagate and leave the payout requested so an admin can retry or reject.
+        LencoResult result;
+        if ("momo".equals(p.getMethod())) {
+            String phone = PaymentProviders.localPhone(p.getPhone());
+            result = lencoClient.transferToMobileMoney(p.getReferenceNo(), p.getAmountZmw(), phone,
+                    PaymentProviders.operatorFor(phone), narration);
+        } else {
+            String bankId = lencoBankId(p.getBankName());
+            if (bankId == null) {
+                p.setStatus(PayoutRequest.FAILED);
+                p.setAdminNote("Bank \"" + p.getBankName() + "\" isn't recognised. Please request again choosing your bank from the list.");
+                payoutRequestRepository.save(p);
+                return toDto(p);
+            }
+            result = lencoClient.transferToBankAccount(p.getReferenceNo(), p.getAmountZmw(), p.getReceiverId(), bankId, narration);
+        }
+        if (result.isFailed()) {
+            p.setStatus(PayoutRequest.FAILED);
+            p.setAdminNote(result.failureReason());
+        } else {
+            p.setStatus(result.isSuccessful() ? PayoutRequest.PAID : PayoutRequest.PROCESSING);
+            p.setTransactionId(result.lencoReference());
+        }
+        payoutRequestRepository.save(p);
+        notificationService.payoutUpdated(p);
+        return toDto(p);
+    }
+
+    /** Lenco needs its own bank id; match the seller's bank name against Lenco's Zambian bank list. */
+    private String lencoBankId(String bankName) {
+        if (bankName == null || bankName.isBlank()) return null;
+        String wanted = bankName.trim().toLowerCase();
+        var banks = lencoClient.banks();
+        return banks.stream().filter(b -> b.get("name").equalsIgnoreCase(wanted)).map(b -> b.get("id")).findFirst()
+                .orElseGet(() -> banks.stream().filter(b -> b.get("name").toLowerCase().contains(wanted)
+                                || wanted.contains(b.get("name").toLowerCase()))
+                        .map(b -> b.get("id")).findFirst().orElse(null));
     }
 
     @Transactional
@@ -210,6 +262,7 @@ public class PayoutService {
         p.setStatus(PayoutRequest.REJECTED);
         p.setAdminNote(note);
         payoutRequestRepository.save(p);
+        notificationService.payoutUpdated(p);
         return toDto(p);
     }
 

@@ -3,6 +3,7 @@ package com.artcanvaszambia.backend.orders.dto;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public record OrderDetailDto(
@@ -16,6 +17,7 @@ public record OrderDetailDto(
         String paymentProvider,
         String paymentReference,
         Instant createdAt,
-        List<OrderItemDto> items
+        List<OrderItemDto> items,
+        Map<String, String> shippingAddress
 ) {
 }

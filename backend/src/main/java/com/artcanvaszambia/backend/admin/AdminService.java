@@ -100,10 +100,15 @@ public class AdminService {
     private final ArtworkRepository artworkRepository;
     private final SupplyRepository supplyRepository;
     private final ClassRepository classRepository;
+    private final com.artcanvaszambia.backend.classes.ClassEnrollmentRepository classEnrollmentRepository;
+    private final com.artcanvaszambia.backend.exhibitions.ExhibitionTicketRepository exhibitionTicketRepository;
     private final ExhibitionRepository exhibitionRepository;
     private final CommissionRepository commissionRepository;
     private final OrderRepository orderRepository;
+    private final com.artcanvaszambia.backend.orders.OrderFulfillmentService orderFulfillmentService;
     private final ZynlePayClient zynlePayClient;
+    private final com.artcanvaszambia.backend.payments.LencoClient lencoClient;
+    private final com.artcanvaszambia.backend.payments.PaymentProviders paymentProviders;
     private final RolePermissionRepository rolePermissionRepository;
     private final UserPermissionOverrideRepository userPermissionOverrideRepository;
     private final PasswordEncoder passwordEncoder;
@@ -133,6 +138,15 @@ public class AdminService {
     );
 
     public WalletBalanceDto getWalletBalance() {
+        if (com.artcanvaszambia.backend.payments.PaymentProviders.LENCO.equals(paymentProviders.active())) {
+            var lenco = lencoClient.accountBalance();
+            if (!lenco.accepted()) {
+                return new WalletBalanceDto(null, null, lenco.failureReason());
+            }
+            // Lenco has a single account: available funds can be paid out, the ledger includes uncleared funds.
+            return new WalletBalanceDto(lenco.dataField("availableBalance"), lenco.dataField("ledgerBalance"),
+                    "Lenco account");
+        }
         ZynlePayResult result = zynlePayClient.checkBalance();
         return new WalletBalanceDto(result.get("disbursement_balance"), result.get("collection_balance"), result.description());
     }
@@ -160,7 +174,16 @@ public class AdminService {
             s.setDeveloperRoyaltyPercent(req.developerRoyaltyPercent());
         }
         if (req.currency() != null) s.setCurrency(req.currency());
-        if (req.paymentProvider() != null) s.setPaymentProvider(req.paymentProvider());
+        if (req.paymentProvider() != null && !req.paymentProvider().isBlank()) {
+            String provider = req.paymentProvider().trim().toLowerCase();
+            if (!com.artcanvaszambia.backend.payments.PaymentProviders.ALL.contains(provider)) {
+                throw ApiException.badRequest("Payment provider must be zynlepay or lenco");
+            }
+            if (com.artcanvaszambia.backend.payments.PaymentProviders.LENCO.equals(provider) && !lencoClient.isConfigured()) {
+                throw ApiException.badRequest("Set LENCO_API_TOKEN on the server before switching to Lenco");
+            }
+            s.setPaymentProvider(provider);
+        }
         if (req.heroImageUrl() != null) s.setHeroImageUrl(req.heroImageUrl());
         if (changesDeveloperAccount) {
             s.setDeveloperPayoutMethod(req.developerPayoutMethod());
@@ -487,8 +510,14 @@ public class AdminService {
             throw ApiException.badRequest("Invalid order status");
         }
         Order order = orderRepository.findById(id).orElseThrow(() -> ApiException.notFound("Order not found"));
-        order.setStatus(normalized);
-        orderRepository.save(order);
+        if (Order.PAID.equals(normalized)) {
+            // Run the same fulfilment as a confirmed payment (enrollments, tickets, stock, sold status).
+            orderFulfillmentService.markPaid(order);
+        } else {
+            order.setStatus(normalized);
+            orderRepository.save(order);
+        }
+        auditService.record("ORDER_STATUS_UPDATED", "ORDER", order.getId(), order.getOrderNumber(), normalized);
         return toAdminOrderDto(order, profilesById(List.of(order.getBuyerId())), usersById(List.of(order.getBuyerId())));
     }
 
@@ -570,7 +599,10 @@ public class AdminService {
                 classEntity.getPrerequisites(),
                 classEntity.getSyllabus(),
                 classEntity.getTags(),
-                classEntity.isMaterialsIncluded()
+                classEntity.isMaterialsIncluded(),
+                classEnrollmentRepository.countByClassIdAndStatusIn(classEntity.getId(),
+                        com.artcanvaszambia.backend.orders.CheckoutService.SEAT_HOLDING_STATUSES),
+                false
         );
     }
 
@@ -596,7 +628,9 @@ public class AdminService {
                 exhibition.getTags(),
                 exhibition.getContactEmail(),
                 exhibition.getContactPhone(),
-                exhibition.isFeatured()
+                exhibition.isFeatured(),
+                exhibitionTicketRepository.sumQuantityByExhibitionIdAndStatusIn(exhibition.getId(),
+                        com.artcanvaszambia.backend.orders.CheckoutService.SEAT_HOLDING_STATUSES)
         );
     }
 

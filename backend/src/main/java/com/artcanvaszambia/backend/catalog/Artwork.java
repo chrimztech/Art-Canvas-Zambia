@@ -108,6 +108,18 @@ public class Artwork {
     @Column(name = "origin_country")
     private String originCountry;
 
+
+    /** Flat delivery fee added at checkout when the buyer chooses delivery (0 = free delivery). */
+    @Column(name = "shipping_fee_zmw", nullable = false, precision = 12, scale = 2)
+    private java.math.BigDecimal shippingFeeZmw = java.math.BigDecimal.ZERO;
+
+    @Column(name = "accepts_offers", nullable = false)
+    private boolean acceptsOffers = true;
+
+    /** When followers and saved-search alerts were sent; null until first published. */
+    @Column(name = "announced_at")
+    private Instant announcedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 

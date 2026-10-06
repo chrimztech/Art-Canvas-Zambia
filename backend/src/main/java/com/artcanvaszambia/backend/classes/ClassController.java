@@ -1,6 +1,8 @@
 package com.artcanvaszambia.backend.classes;
 
+import com.artcanvaszambia.backend.admin.dto.StatusUpdateRequest;
 import com.artcanvaszambia.backend.classes.dto.ClassDto;
+import com.artcanvaszambia.backend.common.dto.AttendeeDto;
 import com.artcanvaszambia.backend.classes.dto.ClassRequest;
 import com.artcanvaszambia.backend.classes.dto.EnrollmentDto;
 import com.artcanvaszambia.backend.orders.CheckoutService;
@@ -58,6 +60,21 @@ public class ClassController {
     @PostMapping("/api/classes/{id}/checkout")
     public CheckoutResponse checkout(@PathVariable UUID id, @Valid @RequestBody CheckoutRequest req) {
         return checkoutService.checkoutSingleItem(OrderItem.CLASS, id, 1, req);
+    }
+
+    @PatchMapping("/api/classes/{id}/status")
+    public ClassDto updateStatus(@PathVariable UUID id, @Valid @RequestBody StatusUpdateRequest req) {
+        return classService.updateStatus(id, req.status());
+    }
+
+    @GetMapping("/api/classes/{id}/enrollments")
+    public List<AttendeeDto> roster(@PathVariable UUID id) {
+        return classService.roster(id);
+    }
+
+    @PostMapping("/api/classes/enrollments/{enrollmentId}/attended")
+    public void markAttended(@PathVariable UUID enrollmentId) {
+        classService.markAttended(enrollmentId);
     }
 
     @GetMapping("/api/me/enrollments")

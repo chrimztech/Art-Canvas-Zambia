@@ -8,6 +8,9 @@ public record ArtistSummaryDto(
         String avatarUrl,
         String bio,
         String location,
-        long artworkCount
+        long artworkCount,
+        boolean verified,
+        double averageRating,
+        long reviewCount
 ) {
 }

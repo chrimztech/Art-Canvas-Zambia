@@ -9,10 +9,16 @@ import com.artcanvaszambia.backend.profile.Profile;
 import com.artcanvaszambia.backend.profile.ProfileRepository;
 import com.artcanvaszambia.backend.security.Role;
 import com.artcanvaszambia.backend.security.SecurityUtils;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,12 +30,45 @@ public class ArtworkService {
     private final ArtworkRepository artworkRepository;
     private final ArtworkImageRepository artworkImageRepository;
     private final ProfileRepository profileRepository;
+    private final CategoryRepository categoryRepository;
 
-    public List<ArtworkSummaryDto> listPublished(UUID categoryId) {
-        List<Artwork> artworks = categoryId == null
-                ? artworkRepository.findByStatusInOrderByCreatedAtDesc(List.of(Artwork.PUBLISHED, Artwork.SOLD))
-                : artworkRepository.findByStatusAndCategoryIdOrderByCreatedAtDesc(Artwork.PUBLISHED, categoryId);
-        return toSummaries(artworks);
+    private static final List<String> PUBLIC_STATUSES = List.of(Artwork.PUBLISHED, Artwork.SOLD);
+
+    /**
+     * Public catalogue search. Matches {@code q} against title, medium, style, description
+     * and the artist's display name; {@code available} hides sold work.
+     */
+    public List<ArtworkSummaryDto> search(String q, UUID categoryId, BigDecimal minPrice, BigDecimal maxPrice,
+                                          String sort, boolean available) {
+        Specification<Artwork> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(available
+                    ? cb.equal(root.get("status"), Artwork.PUBLISHED)
+                    : root.get("status").in(PUBLIC_STATUSES));
+            if (categoryId != null) predicates.add(cb.equal(root.get("categoryId"), categoryId));
+            if (minPrice != null) predicates.add(cb.greaterThanOrEqualTo(root.get("priceZmw"), minPrice));
+            if (maxPrice != null) predicates.add(cb.lessThanOrEqualTo(root.get("priceZmw"), maxPrice));
+            if (q != null && !q.isBlank()) {
+                String like = "%" + q.trim().toLowerCase() + "%";
+                Subquery<UUID> artistMatch = query.subquery(UUID.class);
+                var profile = artistMatch.from(Profile.class);
+                artistMatch.select(profile.get("id")).where(cb.like(cb.lower(profile.get("displayName")), like));
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("title")), like),
+                        cb.like(cb.lower(root.get("medium")), like),
+                        cb.like(cb.lower(root.get("style")), like),
+                        cb.like(cb.lower(root.get("description")), like),
+                        root.get("artistId").in(artistMatch)));
+            }
+            return cb.and(predicates.toArray(Predicate[]::new));
+        };
+        Sort order = switch (sort == null ? "" : sort) {
+            case "price_asc" -> Sort.by(Sort.Direction.ASC, "priceZmw");
+            case "price_desc" -> Sort.by(Sort.Direction.DESC, "priceZmw");
+            case "popular" -> Sort.by(Sort.Direction.DESC, "viewCount");
+            default -> Sort.by(Sort.Direction.DESC, "createdAt");
+        };
+        return toSummaries(artworkRepository.findAll(spec, order));
     }
 
     public List<ArtworkSummaryDto> listMine() {
@@ -38,10 +77,10 @@ public class ArtworkService {
     }
 
     public List<ArtworkSummaryDto> listByArtistPublished(UUID artistId) {
-        return toSummaries(artworkRepository.findByArtistIdAndStatusOrderByCreatedAtDesc(artistId, Artwork.PUBLISHED));
+        return toSummaries(artworkRepository.findByArtistIdAndStatusInOrderByCreatedAtDesc(artistId, PUBLIC_STATUSES));
     }
 
-    private List<ArtworkSummaryDto> toSummaries(List<Artwork> artworks) {
+    public List<ArtworkSummaryDto> toSummaries(List<Artwork> artworks) {
         Map<UUID, Profile> profiles = profileRepository.findByIdIn(
                         artworks.stream().map(Artwork::getArtistId).distinct().toList()).stream()
                 .collect(Collectors.toMap(Profile::getId, p -> p));
@@ -56,8 +95,15 @@ public class ArtworkService {
     @Transactional
     public ArtworkDetailDto getBySlug(String slug) {
         Artwork a = artworkRepository.findBySlug(slug).orElseThrow(() -> ApiException.notFound("Artwork not found"));
-        a.setViewCount(a.getViewCount() + 1);
-        artworkRepository.save(a);
+        boolean ownerOrAdmin = SecurityUtils.isOwnerOrAdmin(a.getArtistId());
+        // Drafts and archived pieces are private to their artist (and admins).
+        if (!PUBLIC_STATUSES.contains(a.getStatus()) && !ownerOrAdmin) {
+            throw ApiException.notFound("Artwork not found");
+        }
+        if (!ownerOrAdmin) {
+            a.setViewCount(a.getViewCount() + 1);
+            artworkRepository.save(a);
+        }
         return toDetail(a);
     }
 
@@ -71,13 +117,16 @@ public class ArtworkService {
         Profile p = profileRepository.findById(a.getArtistId()).orElse(null);
         List<String> images = artworkImageRepository.findByArtworkIdOrderBySortOrder(a.getId()).stream()
                 .map(com.artcanvaszambia.backend.catalog.ArtworkImage::getImageUrl).toList();
+        String categoryName = a.getCategoryId() != null
+                ? categoryRepository.findById(a.getCategoryId()).map(Category::getName).orElse(null) : null;
         return new ArtworkDetailDto(a.getId(), a.getSlug(), a.getTitle(), a.getDescription(), a.getMedium(),
                 a.getDimensions(), a.getYearCreated(), a.getPriceZmw(), a.isOriginal(), a.getEditionSize(),
                 a.getStatus(), a.getCoverImageUrl(), a.getViewCount(), a.getCategoryId(), a.getArtistId(),
                 p != null ? p.getDisplayName() : null, p != null ? p.getBio() : null, p != null ? p.getAvatarUrl() : null,
                 images, a.getCreatedAt(), a.getMaterials(), a.getStyle(), a.getTags(), a.getWeightKg(),
                 a.isFramed(), a.getProvenance(), a.isSigned(), a.getSignatureLocation(), a.isCertificateOfAuthenticity(),
-                a.getSurface(), a.getOrientation(), a.getShippingNotes(), a.isReadyToHang(), a.getOriginCity(), a.getOriginCountry());
+                a.getSurface(), a.getOrientation(), a.getShippingNotes(), a.isReadyToHang(), a.getOriginCity(), a.getOriginCountry(),
+                categoryName, p != null ? p.getLocation() : null, p != null && p.isVerified());
     }
 
     @Transactional
@@ -90,8 +139,9 @@ public class ArtworkService {
         a.setArtistId(principal.getId());
         applyRequest(a, req);
         a.setSlug(SlugUtil.uniqueSlug(req.title(), artworkRepository::existsBySlug));
-        a.setStatus(Artwork.PUBLISHED);
+        a.setStatus(Artwork.DRAFT.equals(req.status()) ? Artwork.DRAFT : Artwork.PUBLISHED);
         artworkRepository.save(a);
+        replaceImages(a.getId(), req.imageUrls());
         return toDetail(a);
     }
 
@@ -100,8 +150,23 @@ public class ArtworkService {
         Artwork a = artworkRepository.findById(id).orElseThrow(() -> ApiException.notFound("Artwork not found"));
         SecurityUtils.requireOwnerOrAdmin(a.getArtistId());
         applyRequest(a, req);
+        if (Artwork.DRAFT.equals(req.status()) || Artwork.PUBLISHED.equals(req.status())) {
+            a.setStatus(req.status());
+        }
         artworkRepository.save(a);
+        replaceImages(a.getId(), req.imageUrls());
         return toDetail(a);
+    }
+
+    private void replaceImages(UUID artworkId, List<String> imageUrls) {
+        if (imageUrls == null) return;
+        artworkImageRepository.deleteByArtworkId(artworkId);
+        int order = 0;
+        for (String url : imageUrls) {
+            if (url != null && !url.isBlank()) {
+                artworkImageRepository.save(new ArtworkImage(artworkId, url.trim(), order++));
+            }
+        }
     }
 
     private void applyRequest(Artwork a, ArtworkRequest req) {

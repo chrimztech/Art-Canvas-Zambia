@@ -2,7 +2,7 @@ package com.artcanvaszambia.backend.profile;
 
 import com.artcanvaszambia.backend.profile.dto.ProfileDto;
 import com.artcanvaszambia.backend.profile.dto.ProfileUpdateRequest;
-import jakarta.validation.Valid;
+import com.artcanvaszambia.backend.profile.dto.PublicProfileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,8 +14,13 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @GetMapping("/api/profiles/{id}")
-    public ProfileDto get(@PathVariable UUID id) {
-        return profileService.get(id);
+    public PublicProfileDto get(@PathVariable UUID id) {
+        return profileService.getPublic(id);
+    }
+
+    @GetMapping("/api/me/profile")
+    public ProfileDto mine() {
+        return profileService.mine();
     }
 
     @PutMapping("/api/me/profile")

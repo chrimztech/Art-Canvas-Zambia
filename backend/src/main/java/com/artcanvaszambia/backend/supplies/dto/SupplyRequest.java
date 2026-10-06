@@ -20,6 +20,10 @@ public record SupplyRequest(
         String dimensions,
         BigDecimal weightKg,
         Integer warrantyMonths,
-        List<String> tags
+        List<String> tags,
+        // Optional gallery images (cover excluded); when non-null they replace the existing gallery.
+        List<String> imageUrls,
+        // Optional "draft" or "published" (defaults to published on create).
+        String status
 ) {
 }

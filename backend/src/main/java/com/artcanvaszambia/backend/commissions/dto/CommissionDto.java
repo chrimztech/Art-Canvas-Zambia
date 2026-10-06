@@ -3,6 +3,7 @@ package com.artcanvaszambia.backend.commissions.dto;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public record CommissionDto(
@@ -16,6 +17,9 @@ public record CommissionDto(
         BigDecimal quotedPriceZmw,
         LocalDate deadline,
         String status,
-        Instant createdAt
+        Instant createdAt,
+        String customerDisplayName,
+        String artistNote,
+        List<String> referenceImageUrls
 ) {
 }

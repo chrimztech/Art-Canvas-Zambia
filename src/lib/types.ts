@@ -56,6 +56,9 @@ export type ArtworkDetail = {
   readyToHang: boolean;
   originCity: string | null;
   originCountry: string | null;
+  categoryName: string | null;
+  artistLocation: string | null;
+  artistVerified: boolean;
 };
 
 export type ArtistSummary = {
@@ -65,6 +68,9 @@ export type ArtistSummary = {
   bio: string | null;
   location: string | null;
   artworkCount: number;
+  verified: boolean;
+  averageRating: number;
+  reviewCount: number;
 };
 
 export type ArtistDetail = {
@@ -76,6 +82,15 @@ export type ArtistDetail = {
   website: string | null;
   instagram: string | null;
   artworks: ArtworkSummary[];
+  coverImageUrl: string | null;
+  facebookUrl: string | null;
+  twitterUrl: string | null;
+  tiktokUrl: string | null;
+  specialties: string[];
+  yearsExperience: number | null;
+  verified: boolean;
+  averageRating: number;
+  reviewCount: number;
 };
 
 export type Profile = {
@@ -110,6 +125,8 @@ export type CartItem = {
   slug: string;
   priceZmw: number;
   coverImageUrl: string | null;
+  available: boolean;
+  maxQuantity: number;
 };
 
 export type CheckoutRequest = {
@@ -122,7 +139,25 @@ export type CheckoutRequest = {
   state?: string;
   zipCode?: string;
   country?: string;
+  deliveryMethod?: "delivery" | "pickup";
+  shippingName?: string;
+  shippingPhone?: string;
+  shippingAddress?: string;
+  shippingCity?: string;
+  shippingNotes?: string;
+  operator?: "airtel" | "mtn" | "zamtel";
 };
+
+export type ShippingAddress = {
+  method?: "delivery" | "pickup";
+  name?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  notes?: string;
+};
+
+export type FulfillmentStatus = "pending" | "shipped" | "delivered";
 
 export type CheckoutResponse = {
   orderId: string;
@@ -131,7 +166,23 @@ export type CheckoutResponse = {
   paymentMethod: "card" | "momo";
   redirectUrl: string | null;
   message: string | null;
+  widget: LencoWidgetConfig | null;
 };
+
+/** Parameters for Lenco's in-page payment widget (LencoPay.getPaid). */
+export type LencoWidgetConfig = {
+  provider: "lenco";
+  scriptUrl: string;
+  key: string;
+  reference: string;
+  amount: number;
+  currency: string;
+  email: string;
+  channels: ("card" | "mobile-money")[];
+  customer: { firstName?: string; lastName?: string; phone?: string };
+};
+
+export type PaymentProvider = "zynlepay" | "lenco";
 
 export type OrderSummary = {
   id: string;
@@ -145,7 +196,7 @@ export type OrderSummary = {
 export type OrderItem = {
   id: string;
   artworkId: string | null;
-  itemType: "ARTWORK" | "SUPPLY" | "CLASS" | "EXHIBITION";
+  itemType: "ARTWORK" | "SUPPLY" | "CLASS" | "EXHIBITION" | "COMMISSION";
   referenceId: string | null;
   title: string;
   unitPriceZmw: number;
@@ -154,6 +205,17 @@ export type OrderItem = {
   platformFeeZmw: number;
   royaltyZmw: number;
   artistPayoutZmw: number;
+  sellerId: string | null;
+  sellerDisplayName: string | null;
+  fulfillmentStatus: FulfillmentStatus;
+  carrier: string | null;
+  trackingNumber: string | null;
+  shippedAt: string | null;
+  deliveredAt: string | null;
+  physical: boolean;
+  myRating: number | null;
+  refundStatus: "requested" | "refunded" | "rejected" | null;
+  refunded: boolean;
 };
 
 export type OrderDetail = {
@@ -168,6 +230,7 @@ export type OrderDetail = {
   paymentReference: string | null;
   createdAt: string;
   items: OrderItem[];
+  shippingAddress: ShippingAddress | null;
 };
 
 export type Sale = {
@@ -181,6 +244,16 @@ export type Sale = {
   createdAt: string;
   orderNumber: string | null;
   orderStatus: string | null;
+  orderId: string;
+  itemType: OrderItem["itemType"];
+  fulfillmentStatus: FulfillmentStatus;
+  carrier: string | null;
+  trackingNumber: string | null;
+  buyerDisplayName: string | null;
+  buyerEmail: string | null;
+  shippingAddress: ShippingAddress | null;
+  refunded: boolean;
+  buyerId: string | null;
 };
 
 export type Commission = {
@@ -195,6 +268,9 @@ export type Commission = {
   deadline: string | null;
   status: string;
   createdAt: string;
+  customerDisplayName: string | null;
+  artistNote: string | null;
+  referenceImageUrls: string[];
 };
 
 export type Supply = {
@@ -255,6 +331,8 @@ export type ClassItem = {
   syllabus: string | null;
   tags: string[];
   materialsIncluded: boolean;
+  enrolledCount: number;
+  enrolled: boolean;
 };
 
 export type Exhibition = {
@@ -278,6 +356,7 @@ export type Exhibition = {
   contactEmail: string | null;
   contactPhone: string | null;
   isFeatured: boolean;
+  ticketsSold: number;
 };
 
 export type Enrollment = {
@@ -291,6 +370,22 @@ export type Enrollment = {
   status: string;
   amountPaidZmw: number | null;
   createdAt: string;
+  mode: string | null;
+  location: string | null;
+  meetingUrl: string | null;
+  instructorDisplayName: string | null;
+};
+
+export type Attendee = {
+  id: string;
+  userId: string;
+  displayName: string | null;
+  email: string | null;
+  status: string;
+  quantity: number;
+  amountZmw: number | null;
+  createdAt: string;
+  checkedInAt: string | null;
 };
 
 export type Ticket = {
@@ -324,7 +419,11 @@ export type RolePermissions = { role: string; permissions: string[] };
 
 export type PermissionOverride = { permission: string; granted: boolean };
 
-export type UserPermissions = { userId: string; effective: string[]; overrides: PermissionOverride[] };
+export type UserPermissions = {
+  userId: string;
+  effective: string[];
+  overrides: PermissionOverride[];
+};
 
 export type PasswordReset = { tempPassword: string };
 
@@ -389,6 +488,7 @@ export type PlatformSettings = {
 
 export type PublicSiteSettings = {
   heroImageUrl: string | null;
+  paymentProvider: PaymentProvider;
 };
 
 export type UploadResponse = { url: string };
@@ -452,4 +552,85 @@ export type AuditLog = {
   targetLabel: string | null;
   details: string | null;
   createdAt: string;
+};
+
+export type Review = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  reviewerName: string;
+  sellerId: string;
+  itemTitle: string;
+  itemType: string;
+  referenceId: string | null;
+  createdAt: string;
+  sellerReply: string | null;
+  sellerRepliedAt: string | null;
+};
+
+export type ReviewSummary = {
+  average: number;
+  count: number;
+  /** index 0 = one-star count … index 4 = five-star count */
+  histogram: number[];
+  reviews: Review[];
+};
+
+export type ConversationContextType =
+  | "GENERAL"
+  | "ARTWORK"
+  | "SUPPLY"
+  | "CLASS"
+  | "EXHIBITION"
+  | "ORDER"
+  | "COMMISSION";
+
+export type ConversationSummary = {
+  id: string;
+  otherUserId: string;
+  otherDisplayName: string | null;
+  otherAvatarUrl: string | null;
+  subject: string | null;
+  contextType: ConversationContextType;
+  contextId: string | null;
+  contextPath: string | null;
+  lastMessagePreview: string | null;
+  lastMessageMine: boolean;
+  lastMessageAt: string;
+  unreadCount: number;
+};
+
+export type ChatMessage = {
+  id: string;
+  senderId: string;
+  mine: boolean;
+  body: string;
+  createdAt: string;
+  readAt: string | null;
+};
+
+export type ConversationDetail = { conversation: ConversationSummary; messages: ChatMessage[] };
+
+export type RefundRequest = {
+  id: string;
+  orderId: string;
+  orderNumber: string | null;
+  orderItemId: string;
+  itemTitle: string | null;
+  itemType: string | null;
+  amountZmw: number;
+  reason: string;
+  status: "requested" | "refunded" | "rejected";
+  sellerResponse: string | null;
+  adminNote: string | null;
+  buyerId: string;
+  buyerDisplayName: string | null;
+  buyerEmail: string | null;
+  sellerId: string | null;
+  sellerDisplayName: string | null;
+  paymentProvider: string | null;
+  paymentReference: string | null;
+  buyerPhone: string | null;
+  createdAt: string;
+  resolvedAt: string | null;
 };
