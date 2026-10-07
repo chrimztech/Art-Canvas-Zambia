@@ -14,6 +14,7 @@ import favicon32 from "@/assets/favicon-32.png.asset.json";
 import favicon180 from "@/assets/favicon-180.png.asset.json";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import { fetchCurrentUser } from "@/hooks/use-auth";
 import { hasSession } from "@/lib/api-client";
 
@@ -137,6 +138,24 @@ function RootComponent() {
     window.addEventListener("auth-changed", onAuthChanged);
     return () => window.removeEventListener("auth-changed", onAuthChanged);
   }, [router, queryClient]);
+  useEffect(() => {
+    // When a submit is blocked by a required/invalid field, say which one: the browser's own
+    // bubble is easy to miss (and can sit under the sticky header).
+    let last = 0;
+    const onInvalid = (e: Event) => {
+      const el = e.target as HTMLInputElement;
+      if (Date.now() - last < 500) return; // one toast per submit, for the first bad field
+      last = Date.now();
+      const label =
+        (el.id && document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent) ||
+        el.getAttribute("aria-label") ||
+        el.name ||
+        "a required field";
+      toast.error(`${label.trim()}: ${el.validationMessage}`);
+    };
+    document.addEventListener("invalid", onInvalid, true);
+    return () => document.removeEventListener("invalid", onInvalid, true);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

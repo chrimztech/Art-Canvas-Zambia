@@ -197,3 +197,10 @@
     padding-inline: 2.5rem;
   }
 }
+
+/* Keep fields the browser scrolls to (e.g. an invalid required field) clear of the sticky header. */
+input,
+select,
+textarea {
+  scroll-margin-top: 11rem;
+}
