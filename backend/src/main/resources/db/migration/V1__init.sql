@@ -41,10 +41,7 @@ CREATE TABLE categories (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-INSERT INTO categories (slug,name,sort_order) VALUES
- ('painting','Painting',1),('sculpture','Sculpture',2),('photography','Photography',3),
- ('digital','Digital Art',4),('drawing','Drawing & Illustration',5),('mixed-media','Mixed Media',6),
- ('printmaking','Printmaking',7),('textile','Textile & Fibre',8),('ceramics','Ceramics',9);
+
 
 -- ARTWORKS
 CREATE TABLE artworks (
@@ -134,7 +131,7 @@ CREATE TABLE platform_settings (
   payment_provider TEXT,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-INSERT INTO platform_settings (id) VALUES (1);
+
 
 -- COMMISSIONS
 CREATE TABLE commissions (

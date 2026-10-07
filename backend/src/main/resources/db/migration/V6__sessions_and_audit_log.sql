@@ -28,9 +28,7 @@ ALTER TABLE user_permission_overrides ADD CONSTRAINT user_permission_overrides_p
     'WALLET_VIEW_BALANCE'
 ));
 
-INSERT INTO role_permissions (role, permission) VALUES
-    ('SUPER_ADMIN', 'USERS_MANAGE_SESSIONS'),
-    ('ADMIN', 'USERS_MANAGE_SESSIONS');
+
 
 CREATE TABLE sessions (
     id UUID PRIMARY KEY,
